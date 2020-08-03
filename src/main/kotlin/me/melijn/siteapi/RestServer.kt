@@ -12,6 +12,7 @@ import io.ktor.server.engine.stop
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import me.melijn.siteapi.routes.*
+import me.melijn.siteapi.routes.dashboard.handleCookieDecryptGuildGeneral
 import java.util.concurrent.TimeUnit
 
 val objectMapper = jacksonObjectMapper()
@@ -54,6 +55,11 @@ class RestServer {
             // Cookie -> discord guilds & user info
             post("/cookie/decrypt/guild") {
                 this.handleCookieDecryptGuild()
+            }
+
+            // Cookie -> discord guilds & user info & general info
+            post("/cookie/decrypt/guild/general") {
+                this.handleCookieDecryptGuildGeneral()
             }
 
             // DISCORD CODE => COMPLETE COOKIE
