@@ -17,12 +17,12 @@ import me.melijn.siteapi.models.RequestContext
 suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuildGeneral(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
-    val jwt = postBody.get("jwt").asText()
-    val guildId = postBody.get("id").asText()
+    val jwt = postBody.get("jwt")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText() ?: return
 
     val jwtJson = getJWTPayloadNMessage(context, jwt) ?: return
 
-    val userId = jwtJson.get("id").asText()
+    val userId = jwtJson.get("id")?.asText() ?: return
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGeneralSettings = objectMapper.readTree(
