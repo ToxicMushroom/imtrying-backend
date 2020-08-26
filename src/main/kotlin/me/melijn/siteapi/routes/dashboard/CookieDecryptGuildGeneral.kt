@@ -1,17 +1,16 @@
 package me.melijn.siteapi.routes.dashboard
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.SignatureException
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.client.request.headers
-import io.ktor.client.request.post
-import io.ktor.request.receiveText
-import io.ktor.response.respondText
-import io.ktor.util.pipeline.PipelineContext
-import me.melijn.siteapi.*
+import io.ktor.application.*
+import io.ktor.client.request.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.util.pipeline.*
+import me.melijn.siteapi.httpClient
+import me.melijn.siteapi.melijnApi
+import me.melijn.siteapi.melijnApiKey
 import me.melijn.siteapi.models.RequestContext
+import me.melijn.siteapi.objectMapper
 
 
 suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuildGeneral(context: RequestContext) {
@@ -51,9 +50,9 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuildGener
 suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostGuildGeneral(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
-    val jwt = postBody.get("jwt").asText()
-    val guildId = postBody.get("id").asText()
-    val settings = postBody.get("settings")
+    val jwt = postBody.get("jwt")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText() ?: return
+    val settings = postBody.get("settings") ?: return
 
     val jwtJson = getJWTPayloadNMessage(context, jwt) ?: return
 
@@ -79,7 +78,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostGuildG
 suspend fun getJWTPayloadNMessage(context: RequestContext, jwt: String): JsonNode? {
     val rawPayload = try {
         context.jwtParser.parsePlaintextJws(jwt).body
-    } catch (e: SignatureException) {
+    } catch (e: Throwable) {
         val node = objectMapper.createObjectNode()
         val resp = node.put("error", "\uD83D\uDD95")
             .put("status", "stinky")

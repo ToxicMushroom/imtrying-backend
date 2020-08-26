@@ -20,7 +20,8 @@ import me.melijn.siteapi.objectMapper
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCode() {
     val code = try {
-        objectMapper.readTree(call.receiveText()).get("code").asText()
+        objectMapper.readTree(call.receiveText())?.get("code")?.asText()
+            ?: throw IllegalStateException()
     } catch (t: Throwable) {
         val json = objectMapper.createObjectNode()
         json.put("error", "bad request")
@@ -68,7 +69,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
         )
 
         val avatar = user.get("avatar").asText()
-        val tag = user.get("username").asText() + "#" + user.get("discriminator").asInt()
+        val tag = user.get("username").asText() + "#" + user.get("discriminator").asText()
 
         json.put("token", token)
             .put("avatar", avatar)

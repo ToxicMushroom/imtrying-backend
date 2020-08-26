@@ -17,10 +17,10 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUse
         .build()
 
     val postBody = try {
-        objectMapper.readTree(call.receiveText()).get("jwt").asText()
+        objectMapper.readTree(call.receiveText()).get("jwt")?.asText() ?: throw IllegalStateException()
     } catch (t: Throwable) {
         val json = objectMapper.createObjectNode()
-        json.put("error", "bad request")
+            .put("error", "bad request")
         call.respondText { json.toString() }
         return
     }
@@ -53,7 +53,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUse
         call.respondText {
             node.toString()
         }
-    } catch (e: SignatureException) {
+    } catch (e: Throwable) {
         val resp = node.put("error", "\uD83D\uDD95")
             .put("status", "stinky")
             .toString()

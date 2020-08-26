@@ -26,8 +26,8 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuild() {
         return
     }
 
-    val jwt = postBody.get("jwt").asText()
-    val guildId = postBody.get("id").asText()
+    val jwt = postBody.get("jwt")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText() ?: return
 
     val node = objectMapper.createObjectNode()
 
