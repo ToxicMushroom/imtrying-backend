@@ -5,5 +5,6 @@ import io.ktor.application.*
 
 data class RequestContext(
     val jwtParser: JwtParser,
-    val call: ApplicationCall
+    val call: ApplicationCall,
+    val now: Long = System.currentTimeMillis()
 )

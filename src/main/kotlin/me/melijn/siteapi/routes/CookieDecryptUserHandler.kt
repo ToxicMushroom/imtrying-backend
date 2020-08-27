@@ -1,62 +1,42 @@
 package me.melijn.siteapi.routes
 
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.SignatureException
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.request.receiveText
-import io.ktor.response.respondText
-import io.ktor.util.pipeline.PipelineContext
-import me.melijn.siteapi.keyString
+import io.ktor.application.*
+import io.ktor.response.*
+import io.ktor.util.pipeline.*
+import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
+import me.melijn.siteapi.utils.getJWTPayloadNMessage
+import me.melijn.siteapi.utils.getPostBodyNMessage
 
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUser() {
-    val parser = Jwts.parserBuilder()
-        .setSigningKey(keyString)
-        .build()
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUser(context: RequestContext) {
+    val postBody = getPostBodyNMessage(call) ?: return
 
-    val postBody = try {
-        objectMapper.readTree(call.receiveText()).get("jwt")?.asText() ?: throw IllegalStateException()
-    } catch (t: Throwable) {
-        val json = objectMapper.createObjectNode()
-            .put("error", "bad request")
-        call.respondText { json.toString() }
-        return
-    }
+    val jwt = postBody.get("jwt")?.asText() ?: return
+
+    val json = getJWTPayloadNMessage(context, jwt) ?: return
+
+    val avatar = json.get("avatar").asText()
+    val id = json.get("id").asLong()
+    val tag = json.get("tag").asText()
+    val defaultAvatarId = tag.takeLast(4).toInt() % 5
+    val isGif = avatar.startsWith("a_")
+    val isDefault = avatar == "null"
 
     val node = objectMapper.createObjectNode()
-    try {
-
-        val unjsonedPayload = parser.parsePlaintextJws(postBody).body
-        val payload: String? = "{$unjsonedPayload}"
-        val json = payload?.let {
-            try {
-                objectMapper.readTree(it)
-            } catch (t: Throwable) {
-                null
+        .put("tag", tag)
+        .put("isGif", isGif)
+        .put("isDefault", isDefault)
+        .put(
+            "avatar",
+            "https://cdn.discordapp.com/" + if (isDefault) {
+                "embed/avatars/${defaultAvatarId}.png"
+            } else {
+                "avatars/${id}/$avatar"
             }
-        }
+        )
 
-        if (json == null) {
-            node.put("status", "invalid_body $node")
-            call.respondText { node.toString() }
-            return
-        }
-
-        node.put("tag", json.get("tag").asText())
-        val avatar = json.get("avatar").asText()
-
-        node.put("isGif", avatar.startsWith("a_"))
-        node.put("avatar", "https://cdn.discordapp.com/avatars/${json.get("id").asLong()}/$avatar")
-
-        call.respondText {
-            node.toString()
-        }
-    } catch (e: Throwable) {
-        val resp = node.put("error", "\uD83D\uDD95")
-            .put("status", "stinky")
-            .toString()
-        call.respondText { resp }
+    call.respondText {
+        node.toString()
     }
 }

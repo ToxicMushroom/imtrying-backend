@@ -16,9 +16,17 @@ import io.ktor.util.pipeline.PipelineContext
 import me.melijn.siteapi.discordApi
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.keyString
+import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
+import me.melijn.siteapi.utils.RateLimitUtils
+import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCode() {
+object CookieEncryptCodeHandler {
+    val requestMap = mutableMapOf<String, RateLimitUtils.RequestInfo>()
+    val rateLimitInfo = RateLimitUtils.RateLimitInfo(10, 60_000)
+}
+
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCode(context: RequestContext) {
     val code = try {
         objectMapper.readTree(call.receiveText())?.get("code")?.asText()
             ?: throw IllegalStateException()
@@ -36,6 +44,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
         append("redirect_uri", System.getenv("REDIRECT_URI"))
     }.formUrlEncode()
 
+    getValidatedRouteRateLimitNMessage(context, CookieEncryptCodeHandler.requestMap, CookieEncryptCodeHandler.rateLimitInfo)
     val json = objectMapper.createObjectNode()
 
     try {
@@ -44,7 +53,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
                 this.body = encodedUrlParams
                 this.headers {
                     this.append("Content-Type", "application/x-www-form-urlencoded")
-                    this.append("user-agent", "poopoo")
+                    this.append("user-agent", "Melijn dashboard")
                 }
             }
         )

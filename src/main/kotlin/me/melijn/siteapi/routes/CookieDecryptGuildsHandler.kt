@@ -1,60 +1,32 @@
 package me.melijn.siteapi.routes
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.SignatureException
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.client.request.post
-import io.ktor.request.receiveText
-import io.ktor.response.respondText
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.application.*
+import io.ktor.client.request.*
+import io.ktor.response.*
+import io.ktor.util.pipeline.*
 import me.melijn.siteapi.*
+import me.melijn.siteapi.models.RequestContext
+import me.melijn.siteapi.routes.CookieDecryptGuildsHandler.rateLimitInfo
+import me.melijn.siteapi.routes.CookieDecryptGuildsHandler.requestMap
+import me.melijn.siteapi.utils.RateLimitUtils
+import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
+import me.melijn.siteapi.utils.getJWTPayloadNMessage
+import me.melijn.siteapi.utils.getPostBodyNMessage
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuilds() {
-    val parser = Jwts.parserBuilder()
-        .setSigningKey(keyString)
-        .build()
+object CookieDecryptGuildsHandler {
+    val requestMap = mutableMapOf<String, RateLimitUtils.RequestInfo>()
+    val rateLimitInfo = RateLimitUtils.RateLimitInfo(2, 5000)
+}
 
-    val postBody = try {
-        objectMapper.readTree(call.receiveText()).get("jwt").asText()
-    } catch (t: Throwable) {
-        val json = objectMapper.createObjectNode()
-        json.put("error", "bad request")
-        call.respondText { json.toString() }
-        return
-    }
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuilds(context: RequestContext) {
+    val postBody = getPostBodyNMessage(call) ?: return
 
-    val node = objectMapper.createObjectNode()
+    val jwt = postBody.get("jwt")?.asText() ?: return
 
+    val json = getJWTPayloadNMessage(context, jwt) ?: return
 
-    val unjsonedPayload = try {
-        parser.parsePlaintextJws(postBody).body
-    } catch (e: SignatureException) {
-        val resp = node.put("error", "\uD83D\uDD95")
-            .put("status", "stinky")
-            .toString()
-        call.respondText { resp }
-        return
-    }
-
-
-    val payload: String? = "{$unjsonedPayload}"
-    val json = payload?.let {
-        try {
-            objectMapper.readTree(it)
-        } catch (t: Throwable) {
-            null
-        }
-    }
-
-    if (json == null) {
-        node.put("status", "invalid_body $node")
-        call.respondText { node.toString() }
-        return
-    }
+    getValidatedRouteRateLimitNMessage(context, requestMap, rateLimitInfo) ?: return
 
     val token = json.get("token").asText()
 
@@ -62,7 +34,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGui
         httpClient.get<String>("$discordApi/users/@me/guilds") {
             this.headers {
                 this.append("Authorization", "Bearer $token")
-                this.append("user-agent", "poopoo")
+                this.append("user-agent", "Melijn dashboard")
             }
         }
     )
@@ -77,16 +49,28 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGui
         }
     )
 
-    node.set<JsonNode>("guilds", melijnGuilds)
-    node.put("tag", json.get("tag").asText())
     val avatar = json.get("avatar").asText()
+    val id = json.get("id").asLong()
+    val tag = json.get("tag").asText()
+    val defaultAvatarId = tag.takeLast(4).toInt() % 5
+    val isGif = avatar.startsWith("a_")
+    val isDefault = avatar == "null"
 
-    node.put("isGif", avatar.startsWith("a_"))
-    node.put("id", json.get("id").asText())
-    node.put("avatar", "https://cdn.discordapp.com/avatars/${json.get("id").asLong()}/$avatar")
+    val node = objectMapper.createObjectNode()
+        .put("tag", tag)
+        .put("isGif", isGif)
+        .put("isDefault", isDefault)
+        .put(
+            "avatar",
+            "https://cdn.discordapp.com/" + if (isDefault) {
+                "embed/avatars/${defaultAvatarId}.png"
+            } else {
+                "avatars/${id}/$avatar"
+            }
+        )
+        .set<JsonNode>("guilds", melijnGuilds)
 
     call.respondText {
         node.toString()
     }
-
 }
