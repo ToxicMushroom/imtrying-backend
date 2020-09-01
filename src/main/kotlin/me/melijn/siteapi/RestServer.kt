@@ -6,9 +6,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.ktor.application.*
 import io.ktor.client.*
-import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -47,7 +45,17 @@ class RestServer {
         this.requestQueueLimit = 50
     }) {
         intercept(ApplicationCallPipeline.Call) {
-            if (getValidatedRouteRateLimitNMessage(RequestContext(jwtParser, call), requestMap, rateLimitInfo, blackList, 5) == true) {
+//            call.request.headers.forEach { s, list ->
+//                println("'$s': " + list.joinToString("', '", "'", "'") { it })
+//            }
+            if (getValidatedRouteRateLimitNMessage(
+                    RequestContext(jwtParser, call),
+                    requestMap,
+                    rateLimitInfo,
+                    blackList,
+                    5
+                ) == true
+            ) {
                 this.proceed()
             } else {
                 this.finish()

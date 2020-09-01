@@ -1,16 +1,12 @@
 package me.melijn.siteapi.utils
 
-import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
-import io.ktor.util.collections.*
 import me.melijn.siteapi.models.RequestContext
 import org.slf4j.LoggerFactory
 import java.util.*
-import kotlin.ConcurrentModificationException
-import kotlin.collections.ArrayList
 
 object RateLimitUtils {
 
@@ -24,7 +20,7 @@ object RateLimitUtils {
         blackListThreshold: Int = 5
     ): Boolean? {
         val call = context.call
-        val cfIp = call.request.header("CF-Connecting-IP")
+        val cfIp = call.request.header("cf-connecting-ip")
         val absoluteIp = cfIp ?: call.request.origin.remoteHost
         if (blackList?.contains(absoluteIp) == true) {
             logger.warn("$absoluteIp is a blackListed ip and made a request")
@@ -60,7 +56,7 @@ object RateLimitUtils {
                 }
                 reqInfo.requestMap.add(context.now)
                 reqInfo.lastTime = context.now
-                logger.warn(call.request.origin.remoteHost + ": " + call.request.uri + " (Ratelimited)")
+                logger.warn(absoluteIp + ": " + call.request.uri + " (Ratelimited)")
                 return null
             }
         }
@@ -70,7 +66,7 @@ object RateLimitUtils {
         reqInfo.previousResponse = true
 
         requestMap[absoluteIp] = reqInfo
-        logger.info(call.request.origin.remoteHost + ": " + call.request.uri)
+        logger.info(absoluteIp + ": " + call.request.uri)
         return true
     }
 
