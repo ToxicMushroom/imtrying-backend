@@ -9,7 +9,7 @@ import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import me.melijn.siteapi.database.DriverManager
+import me.melijn.siteapi.database.DaoManager
 import me.melijn.siteapi.models.ContextContainer
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.routes.*
@@ -27,7 +27,7 @@ val objectMapper = jacksonObjectMapper()
 val httpClient = HttpClient()
 val jsonType = ContentType.parse("Application/JSON")
 
-class RestServer(settings: Settings, val database: DriverManager) {
+class RestServer(settings: Settings, val database: DaoManager) {
 
 
     private val jwtParser: JwtParser = Jwts.parserBuilder()
