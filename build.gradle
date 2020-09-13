@@ -43,6 +43,14 @@ dependencies {
     // https://github.com/jwtk/jjwt
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+
+    // https://search.maven.org/artifact/com.zaxxer/HikariCP
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
+
+    // implementation group: 'com.github.husnjak', name: 'IGDB-API-JVM', version: '0.7'
+    implementation group: 'io.lettuce', name: 'lettuce-core', version: '5.3.3.RELEASE'
+
+    implementation 'io.github.cdimascio:java-dotenv:5.3.1'
 }
 
 

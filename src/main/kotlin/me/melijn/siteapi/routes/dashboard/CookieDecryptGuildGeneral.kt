@@ -6,8 +6,6 @@ import io.ktor.client.request.*
 import io.ktor.response.*
 import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
-import me.melijn.siteapi.melijnApi
-import me.melijn.siteapi.melijnApiKey
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.utils.getJWTPayloadNMessage
@@ -26,10 +24,10 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuildGener
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("$melijnApi/getsettings/general/$guildId") {
+        httpClient.post<String>("${context.melijnApi}/getsettings/general/$guildId") {
             this.body = userId
             this.headers {
-                this.append("Authorization", "Bearer $melijnApiKey")
+                this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }
         }
     )
@@ -65,10 +63,10 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostGuildG
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnPostGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("$melijnApi/postsettings/general/$guildId") {
+        httpClient.post<String>("$${context.melijnApi}/postsettings/general/$guildId") {
             this.body = node.toString()
             this.headers {
-                this.append("Authorization", "Bearer $melijnApiKey")
+                this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }
         }
     )

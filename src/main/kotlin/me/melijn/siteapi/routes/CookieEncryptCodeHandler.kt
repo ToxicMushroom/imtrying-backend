@@ -3,19 +3,13 @@ package me.melijn.siteapi.routes
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.impl.DefaultJwtBuilder
 import io.jsonwebtoken.security.Keys
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.client.request.post
-import io.ktor.http.Parameters
-import io.ktor.http.formUrlEncode
-import io.ktor.request.receiveText
-import io.ktor.response.respondText
-import io.ktor.util.pipeline.PipelineContext
-import me.melijn.siteapi.discordApi
+import io.ktor.application.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
-import me.melijn.siteapi.keyString
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.utils.RateLimitUtils
@@ -36,12 +30,14 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
         call.respondText { json.toString() }
         return
     }
+
+    val oauth = context.settings.discordOauth
     val encodedUrlParams = Parameters.build {
-        append("client_id", System.getenv("MELIJN_ID"))
-        append("client_secret", System.getenv("MELIJN_SECRET"))
+        append("client_id", oauth.botId)
+        append("client_secret", oauth.botSecret)
         append("grant_type", "authorization_code")
         append("code", code)
-        append("redirect_uri", System.getenv("REDIRECT_URI"))
+        append("redirect_uri", oauth.redirectUrl)
     }.formUrlEncode()
 
     getValidatedRouteRateLimitNMessage(context, CookieEncryptCodeHandler.requestMap, CookieEncryptCodeHandler.rateLimitInfo)
@@ -49,7 +45,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
 
     try {
         val tokenResponse = objectMapper.readTree(
-            httpClient.post<String>("$discordApi/oauth2/token") {
+            httpClient.post<String>("${context.discordApi}/oauth2/token") {
                 this.body = encodedUrlParams
                 this.headers {
                     this.append("Content-Type", "application/x-www-form-urlencoded")
@@ -69,7 +65,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
         }
 
         val user = objectMapper.readTree(
-            httpClient.get<String>("$discordApi/users/@me") {
+            httpClient.get<String>("${context.discordApi}/users/@me") {
                 this.headers {
                     this.append("Authorization", "Bearer $token")
                     this.append("user-agent", "poopoo")
@@ -86,7 +82,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCod
             .put("id", user.get("id").asLong())
 
         val payload = json.toString()
-        val key = Keys.hmacShaKeyFor(keyString)
+        val key = Keys.hmacShaKeyFor(context.jwtKey)
         val data = payload.removeSurrounding("{", "}") // Unjson the json object
 
         val jwt = DefaultJwtBuilder()

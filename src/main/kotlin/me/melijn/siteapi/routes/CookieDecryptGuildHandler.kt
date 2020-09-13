@@ -5,8 +5,6 @@ import io.ktor.client.request.*
 import io.ktor.response.*
 import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
-import me.melijn.siteapi.melijnApi
-import me.melijn.siteapi.melijnApiKey
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.utils.getJWTPayloadNMessage
@@ -24,10 +22,10 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuild(cont
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGuild = objectMapper.readTree(
-        httpClient.post<String>("$melijnApi/guild/$guildId") {
+        httpClient.post<String>("${context.melijnApi}/guild/$guildId") {
             this.body = json.get("id").asText()
             this.headers {
-                this.append("Authorization", "Bearer $melijnApiKey")
+                this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }
         }
     )

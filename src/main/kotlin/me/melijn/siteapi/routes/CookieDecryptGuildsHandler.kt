@@ -5,8 +5,9 @@ import io.ktor.application.*
 import io.ktor.client.request.*
 import io.ktor.response.*
 import io.ktor.util.pipeline.*
-import me.melijn.siteapi.*
+import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.RequestContext
+import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.routes.CookieDecryptGuildsHandler.rateLimitInfo
 import me.melijn.siteapi.routes.CookieDecryptGuildsHandler.requestMap
 import me.melijn.siteapi.utils.RateLimitUtils
@@ -31,7 +32,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGui
     val token = json.get("token").asText()
 
     val partialGuilds = objectMapper.readTree(
-        httpClient.get<String>("$discordApi/users/@me/guilds") {
+        httpClient.get<String>("${context.discordApi}/users/@me/guilds") {
             this.headers {
                 this.append("Authorization", "Bearer $token")
                 this.append("user-agent", "Melijn dashboard")
@@ -41,10 +42,10 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGui
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGuilds = objectMapper.readTree(
-        httpClient.post<String>("$melijnApi/upgradeGuilds") {
+        httpClient.post<String>("${context.melijnApi}/upgradeGuilds") {
             this.body = partialGuilds.toString()
             this.headers {
-                this.append("Authorization", "Bearer $melijnApiKey")
+                this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }
         }
     )

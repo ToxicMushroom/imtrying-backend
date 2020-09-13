@@ -3,15 +3,14 @@ package me.melijn.siteapi.routes
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.impl.DefaultJwtBuilder
 import io.jsonwebtoken.security.Keys
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.request.receiveText
-import io.ktor.response.respondText
-import io.ktor.util.pipeline.PipelineContext
-import me.melijn.siteapi.keyString
+import io.ktor.application.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.util.pipeline.*
+import me.melijn.siteapi.models.RequestContext
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncrypt() {
-    val key = Keys.hmacShaKeyFor(keyString)
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncrypt(requestContext: RequestContext) {
+    val key = Keys.hmacShaKeyFor(requestContext.jwtKey)
     val data = call.receiveText().removeSurrounding("{", "}") // Unjson the json object
     val jwt = DefaultJwtBuilder()
         .setPayload(data)

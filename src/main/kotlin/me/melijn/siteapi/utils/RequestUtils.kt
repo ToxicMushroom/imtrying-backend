@@ -20,14 +20,13 @@ suspend fun getJWTPayloadNMessage(context: RequestContext, jwt: String): JsonNod
     }
 
 
-    val payload: String? = "{$rawPayload}"
-    val json = payload?.let {
-        try {
-            objectMapper.readTree(it)
-        } catch (t: Throwable) {
-            null
-        }
+    val payload = "{$rawPayload}"
+    val json = try {
+        objectMapper.readTree(payload)
+    } catch (t: Throwable) {
+        null
     }
+
 
     if (json == null) {
         val node = objectMapper.createObjectNode()
