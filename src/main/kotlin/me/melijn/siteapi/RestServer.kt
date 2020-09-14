@@ -12,12 +12,18 @@ import io.ktor.server.netty.*
 import me.melijn.siteapi.database.DaoManager
 import me.melijn.siteapi.models.ContextContainer
 import me.melijn.siteapi.models.RequestContext
-import me.melijn.siteapi.routes.*
-import me.melijn.siteapi.routes.dashboard.handleCookieDecryptGuildGeneral
+import me.melijn.siteapi.routes.commands.handleGetCommands
 import me.melijn.siteapi.routes.dashboard.handleCookieDecryptPostGuildGeneral
 import me.melijn.siteapi.routes.dashboard.handleCookieDecryptPostUserSettings
-import me.melijn.siteapi.routes.dashboard.handleCookieDecryptUserSettings
-import me.melijn.siteapi.routes.verify.handleCookieDecryptVerifyGuilds
+import me.melijn.siteapi.routes.dashboard.handleGetGeneralSettings
+import me.melijn.siteapi.routes.dashboard.handleGetUserSettings
+import me.melijn.siteapi.routes.general.handleCookieDecryptGuilds
+import me.melijn.siteapi.routes.general.handleCookieDecryptUser
+import me.melijn.siteapi.routes.general.handleGetGuild
+import me.melijn.siteapi.routes.handleCookieFromCode
+import me.melijn.siteapi.routes.raw.handleCookieDecrypt
+import me.melijn.siteapi.routes.raw.handleCookieEncrypt
+import me.melijn.siteapi.routes.verify.handleVerifyGuilds
 import me.melijn.siteapi.utils.RateLimitUtils
 import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
 import java.util.concurrent.ConcurrentHashMap
@@ -59,7 +65,7 @@ class RestServer(settings: Settings, val database: DaoManager) {
         routing {
             // full command list
             get("/commands") {
-                this.handleCommands(RequestContext(contextContainer, call))
+                this.handleGetCommands(RequestContext(contextContainer, call))
             }
 
             // cookie body -> Cookie
@@ -79,7 +85,7 @@ class RestServer(settings: Settings, val database: DaoManager) {
 
             // Cookie -> user info & settings
             post("/cookie/decrypt/user/settings") {
-                this.handleCookieDecryptUserSettings(RequestContext(contextContainer, call))
+                this.handleGetUserSettings(RequestContext(contextContainer, call))
             }
 
             // Cookie -> discord guilds & user info
@@ -89,23 +95,23 @@ class RestServer(settings: Settings, val database: DaoManager) {
 
             // Cookie -> discord guilds & user info
             post("/cookie/decrypt/guild") {
-                this.handleCookieDecryptGuild(RequestContext(contextContainer, call))
+                this.handleGetGuild(RequestContext(contextContainer, call))
             }
 
             // DISCORD CODE => COMPLETE COOKIE
             post("/cookie/encrypt/code") {
-                this.handleCookieEncryptCode(RequestContext(contextContainer, call))
+                this.handleCookieFromCode(RequestContext(contextContainer, call))
             }
 
             // ---=== Verification ===---
             post("/cookie/decrypt/verifyguilds") {
-                this.handleCookieDecryptVerifyGuilds(RequestContext(contextContainer, call))
+                this.handleVerifyGuilds(RequestContext(contextContainer, call))
             }
 
             // ---=== SETTINGS ===---
             // Cookie -> discord guilds & user info & general info
             post("/cookie/decrypt/guild/general") {
-                this.handleCookieDecryptGuildGeneral(RequestContext(contextContainer, call))
+                this.handleGetGeneralSettings(RequestContext(contextContainer, call))
             }
 
             // Cookie & general info -> saved or not saved

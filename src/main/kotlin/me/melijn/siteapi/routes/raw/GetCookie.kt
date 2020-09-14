@@ -1,4 +1,4 @@
-package me.melijn.siteapi.routes
+package me.melijn.siteapi.routes.raw
 
 import io.ktor.application.*
 import io.ktor.response.*

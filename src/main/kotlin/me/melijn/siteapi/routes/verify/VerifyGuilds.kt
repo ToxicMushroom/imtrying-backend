@@ -20,7 +20,7 @@ object CookieDecryptVerifyGuilds {
     val rateLimitInfo = RateLimitUtils.RateLimitInfo(4, 5000)
 }
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptVerifyGuilds(context: RequestContext) {
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return

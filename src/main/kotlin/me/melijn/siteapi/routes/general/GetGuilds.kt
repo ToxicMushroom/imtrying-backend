@@ -1,4 +1,4 @@
-package me.melijn.siteapi.routes
+package me.melijn.siteapi.routes.general
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.application.*
@@ -8,8 +8,8 @@ import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
-import me.melijn.siteapi.routes.CookieDecryptGuildsHandler.rateLimitInfo
-import me.melijn.siteapi.routes.CookieDecryptGuildsHandler.requestMap
+import me.melijn.siteapi.routes.general.CookieDecryptGuildsHandler.rateLimitInfo
+import me.melijn.siteapi.routes.general.CookieDecryptGuildsHandler.requestMap
 import me.melijn.siteapi.utils.RateLimitUtils
 import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
 import me.melijn.siteapi.utils.getJWTPayloadNMessage

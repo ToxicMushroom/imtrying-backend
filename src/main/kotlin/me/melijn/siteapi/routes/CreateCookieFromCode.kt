@@ -20,7 +20,7 @@ object CookieEncryptCodeHandler {
     val rateLimitInfo = RateLimitUtils.RateLimitInfo(10, 60_000)
 }
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieEncryptCode(context: RequestContext) {
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(context: RequestContext) {
     val code = try {
         objectMapper.readTree(call.receiveText())?.get("code")?.asText()
             ?: throw IllegalStateException()

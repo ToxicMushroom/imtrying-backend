@@ -1,4 +1,4 @@
-package me.melijn.siteapi.routes
+package me.melijn.siteapi.routes.general
 
 import io.ktor.application.*
 import io.ktor.client.request.*
@@ -11,7 +11,7 @@ import me.melijn.siteapi.utils.getJWTPayloadNMessage
 import me.melijn.siteapi.utils.getPostBodyNMessage
 
 
-suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptGuild(context: RequestContext) {
+suspend fun PipelineContext<Unit, ApplicationCall>.handleGetGuild(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return

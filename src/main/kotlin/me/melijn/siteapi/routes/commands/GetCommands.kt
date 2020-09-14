@@ -1,4 +1,4 @@
-package me.melijn.siteapi.routes
+package me.melijn.siteapi.routes.commands
 
 import io.ktor.application.*
 import io.ktor.client.request.*
@@ -9,7 +9,7 @@ import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.jsonType
 import me.melijn.siteapi.models.RequestContext
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCommands(context: RequestContext) {
+suspend inline fun PipelineContext<Unit, ApplicationCall>.handleGetCommands(context: RequestContext) {
     val json = httpClient.get<String>("${context.melijnApi}/fullCommands")
     call.response.header("cache-control", "max-age=3600")
     call.respondText(jsonType, HttpStatusCode.OK) {
