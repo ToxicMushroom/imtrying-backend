@@ -1,6 +1,8 @@
 package me.melijn.siteapi.database
 
 import me.melijn.siteapi.Settings
+import me.melijn.siteapi.database.guilds.GuildDao
+import me.melijn.siteapi.database.guilds.GuildWrapper
 import me.melijn.siteapi.database.guilds.GuildsDao
 import me.melijn.siteapi.database.guilds.GuildsWrapper
 import me.melijn.siteapi.database.session.SessionDao
@@ -16,5 +18,6 @@ class DaoManager(redisSettings: Settings.Redis) {
     val sessionWrapper: SessionWrapper = SessionWrapper(SessionDao(driverManager))
     val userWrapper: UserWrapper = UserWrapper(UserDao(driverManager))
     val guildsWrapper: GuildsWrapper = GuildsWrapper(GuildsDao(driverManager))
+    val guildWrapper: GuildWrapper = GuildWrapper(GuildDao(driverManager))
 
 }

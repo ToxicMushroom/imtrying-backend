@@ -16,6 +16,7 @@ object RateLimitUtils {
         context: RequestContext,
         requestMap: MutableMap<String, RequestInfo>,
         rateInf: RateLimitInfo,
+        shouldLog: Boolean = false,
         blackList: MutableList<String>? = null,
         blackListThreshold: Int = 5
     ): Boolean? {
@@ -66,7 +67,8 @@ object RateLimitUtils {
         reqInfo.previousResponse = true
 
         requestMap[absoluteIp] = reqInfo
-        logger.info(absoluteIp + ": " + call.request.uri)
+        if (shouldLog)
+            logger.info(absoluteIp + ": " + call.request.uri)
         return true
     }
 

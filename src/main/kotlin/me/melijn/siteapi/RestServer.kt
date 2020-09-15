@@ -1,5 +1,7 @@
 package me.melijn.siteapi
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
@@ -21,19 +23,18 @@ import me.melijn.siteapi.routes.general.handleCookieDecryptGuilds
 import me.melijn.siteapi.routes.general.handleCookieDecryptUser
 import me.melijn.siteapi.routes.general.handleGetGuild
 import me.melijn.siteapi.routes.handleCookieFromCode
-import me.melijn.siteapi.routes.raw.handleCookieDecrypt
-import me.melijn.siteapi.routes.raw.handleCookieEncrypt
 import me.melijn.siteapi.routes.verify.handleVerifyGuilds
 import me.melijn.siteapi.utils.RateLimitUtils
 import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-val objectMapper = jacksonObjectMapper()
+val objectMapper: ObjectMapper = jacksonObjectMapper()
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 val httpClient = HttpClient()
 val jsonType = ContentType.parse("Application/JSON")
 
-class RestServer(settings: Settings, val database: DaoManager) {
+class RestServer(settings: Settings, daoManager: DaoManager) {
 
 
     private val jwtParser: JwtParser = Jwts.parserBuilder()
@@ -42,7 +43,7 @@ class RestServer(settings: Settings, val database: DaoManager) {
     private val requestMap = ConcurrentHashMap<String, RateLimitUtils.RequestInfo>()
     private val rateLimitInfo = RateLimitUtils.RateLimitInfo(100, 60_000)
     private val blackList = mutableListOf<String>()
-    private val contextContainer = ContextContainer(jwtParser, settings)
+    private val contextContainer = ContextContainer(jwtParser, settings, daoManager)
 
     private val server: NettyApplicationEngine = embeddedServer(Netty, 2607, configure = {
         this.runningLimit = 50
@@ -53,6 +54,7 @@ class RestServer(settings: Settings, val database: DaoManager) {
                     RequestContext(contextContainer, call),
                     requestMap,
                     rateLimitInfo,
+                    true,
                     blackList,
                     5
                 ) == true
@@ -66,16 +68,6 @@ class RestServer(settings: Settings, val database: DaoManager) {
             // full command list
             get("/commands") {
                 this.handleGetCommands(RequestContext(contextContainer, call))
-            }
-
-            // cookie body -> Cookie
-            post("/cookie/encrypt") {
-                this.handleCookieEncrypt(RequestContext(contextContainer, call))
-            }
-
-            // Cookie -> cookie body
-            post("/cookie/decrypt") {
-                this.handleCookieDecrypt(RequestContext(contextContainer, call))
             }
 
             // Cookie -> user info

@@ -7,9 +7,9 @@ import io.ktor.response.*
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
 
-suspend fun getJWTPayloadNMessage(context: RequestContext, jwt: String): JsonNode? {
-    val rawPayload = try {
-        context.jwtParser.parsePlaintextJws(jwt).body
+suspend fun validateJWTNMessage(context: RequestContext, jwt: String): Boolean? {
+    try {
+        context.jwtParser.parsePlaintextJws(jwt).body // Parser knows about key and will validate contents
     } catch (e: Throwable) {
         val node = objectMapper.createObjectNode()
         val resp = node.put("error", "\uD83D\uDD95")
@@ -19,23 +19,7 @@ suspend fun getJWTPayloadNMessage(context: RequestContext, jwt: String): JsonNod
         return null
     }
 
-
-    val payload = "{$rawPayload}"
-    val json = try {
-        objectMapper.readTree(payload)
-    } catch (t: Throwable) {
-        null
-    }
-
-
-    if (json == null) {
-        val node = objectMapper.createObjectNode()
-        node.put("status", "invalid_body $node")
-        context.call.respondText { node.toString() }
-        return null
-    }
-
-    return json
+    return true
 }
 
 suspend fun getPostBodyNMessage(call: ApplicationCall): JsonNode? {

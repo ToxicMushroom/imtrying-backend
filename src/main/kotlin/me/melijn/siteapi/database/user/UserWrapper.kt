@@ -11,11 +11,11 @@ class UserWrapper(private val userDao: UserDao) {
         }
     }
 
-    fun setUserInfo(jwt: String, userInfo: UserInfo) {
+    fun setUserInfo(jwt: String, userInfo: UserInfo, lifeTime: Long) {
         userDao.setCacheEntry(
             jwt,
             objectMapper.writeValueAsString(userInfo),
-            1
+            (lifeTime / 60_000).toInt()
         )
     }
 }

@@ -11,13 +11,19 @@ import io.ktor.response.*
 import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.RequestContext
+import me.melijn.siteapi.models.SessionInfo
+import me.melijn.siteapi.models.UserInfo
 import me.melijn.siteapi.objectMapper
+import me.melijn.siteapi.utils.Base58
 import me.melijn.siteapi.utils.RateLimitUtils
 import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
+import java.nio.ByteBuffer
+import kotlin.random.Random
 
-object CookieEncryptCodeHandler {
+object CreateCookieFromCodeHandler {
     val requestMap = mutableMapOf<String, RateLimitUtils.RequestInfo>()
     val rateLimitInfo = RateLimitUtils.RateLimitInfo(10, 60_000)
+    var lastSubId = System.currentTimeMillis()
 }
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(context: RequestContext) {
@@ -40,7 +46,11 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
         append("redirect_uri", oauth.redirectUrl)
     }.formUrlEncode()
 
-    getValidatedRouteRateLimitNMessage(context, CookieEncryptCodeHandler.requestMap, CookieEncryptCodeHandler.rateLimitInfo)
+    getValidatedRouteRateLimitNMessage(
+        context,
+        CreateCookieFromCodeHandler.requestMap,
+        CreateCookieFromCodeHandler.rateLimitInfo
+    )
     val json = objectMapper.createObjectNode()
 
     try {
@@ -55,6 +65,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
         )
 
         val token = tokenResponse.get("access_token").asText()
+        val refreshToken = tokenResponse.get("refresh_token").asText()
         val lifeTime = tokenResponse.get("expires_in").asLong()
 
         val scope = tokenResponse.get("scope").asText()
@@ -74,27 +85,49 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
         )
 
         val avatar = user.get("avatar").asText()
-        val tag = user.get("username").asText() + "#" + user.get("discriminator").asText()
+        val userName = user.get("username").asText()
+        val discriminator = user.get("discriminator").asText()
+        val userId = user.get("id").asLong()
+        val tag = "$userName#$discriminator"
 
-        json.put("token", token)
-            .put("avatar", avatar)
-            .put("tag", tag)
-            .put("id", user.get("id").asLong())
-
-        val payload = json.toString()
         val key = Keys.hmacShaKeyFor(context.jwtKey)
-        val data = payload.removeSurrounding("{", "}") // Unjson the json object
+        val prevUid = CreateCookieFromCodeHandler.lastSubId++
+        val newUid = (prevUid + 1).toString() + Random.nextLong()
 
         val jwt = DefaultJwtBuilder()
-            .setPayload(data)
+            .setPayload(newUid)
             .signWith(key, SignatureAlgorithm.HS256)
             .compact()
 
-        json.removeAll()
+        json
             .put("jwt", jwt)
             .put("lifeTime", lifeTime)
             .put("avatar", avatar)
             .put("tag", tag)
+
+        val buffer = ByteBuffer.allocate(Long.SIZE_BYTES * 2)
+            .putLong(prevUid)
+            .putLong(Random.nextLong())
+
+        context.daoManager.sessionWrapper.setSessionInfo(
+            jwt, SessionInfo(
+                Base58.encode(buffer.array()),
+                context.now + lifeTime,
+                userId,
+                token,
+                refreshToken
+            )
+        )
+
+        context.daoManager.userWrapper.setUserInfo(
+            jwt, UserInfo(
+                userId,
+                userName,
+                discriminator,
+                avatar
+            ),
+            lifeTime
+        )
 
         call.respondText { json.toString() }
 

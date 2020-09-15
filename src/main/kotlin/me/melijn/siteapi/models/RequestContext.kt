@@ -14,4 +14,6 @@ data class RequestContext(
     val jwtKey = contextContainer.settings.restServer.jwtKey
 
     val settings = contextContainer.settings
+
+    val daoManager = contextContainer.daoManager
 }

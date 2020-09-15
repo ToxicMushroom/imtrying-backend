@@ -8,8 +8,8 @@ import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
-import me.melijn.siteapi.utils.getJWTPayloadNMessage
 import me.melijn.siteapi.utils.getPostBodyNMessage
+import me.melijn.siteapi.utils.validateJWTNMessage
 
 
 suspend fun PipelineContext<Unit, ApplicationCall>.handleGetGeneralSettings(context: RequestContext) {
@@ -18,14 +18,15 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetGeneralSettings(cont
     val jwt = postBody.get("jwt")?.asText() ?: return
     val guildId = postBody.get("id")?.asText() ?: return
 
-    val jwtJson = getJWTPayloadNMessage(context, jwt) ?: return
+    validateJWTNMessage(context, jwt) ?: return
 
-    val userId = jwtJson.get("id")?.asText() ?: return
+    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
+    val userId = userInfo.idLong
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGeneralSettings = objectMapper.readTree(
         httpClient.post<String>("${context.melijnApi}/getsettings/general/$guildId") {
-            this.body = userId
+            this.body = "$userId"
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }
@@ -53,12 +54,12 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostGuildG
     val guildId = postBody.get("id")?.asText() ?: return
     val settings = postBody.get("settings") ?: return
 
-    val jwtJson = getJWTPayloadNMessage(context, jwt) ?: return
+    validateJWTNMessage(context, jwt) ?: return
 
-    val userId = jwtJson.get("id").asText()
+    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
 
     val node = objectMapper.createObjectNode()
-    node.put("userId", userId)
+    node.put("userId", userInfo.idLong)
     node.set<JsonNode>("settings", settings)
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard

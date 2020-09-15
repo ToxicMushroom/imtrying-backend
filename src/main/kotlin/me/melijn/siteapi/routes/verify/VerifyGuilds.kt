@@ -11,13 +11,13 @@ import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.routes.verify.CookieDecryptVerifyGuilds.rateLimitInfo
 import me.melijn.siteapi.routes.verify.CookieDecryptVerifyGuilds.requestMap
 import me.melijn.siteapi.utils.RateLimitUtils
-import me.melijn.siteapi.utils.getJWTPayloadNMessage
 import me.melijn.siteapi.utils.getPostBodyNMessage
+import me.melijn.siteapi.utils.validateJWTNMessage
 
 
 object CookieDecryptVerifyGuilds {
     val requestMap = mutableMapOf<String, RateLimitUtils.RequestInfo>()
-    val rateLimitInfo = RateLimitUtils.RateLimitInfo(4, 5000)
+    val rateLimitInfo = RateLimitUtils.RateLimitInfo(2, 5000)
 }
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(context: RequestContext) {
@@ -25,14 +25,16 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(con
 
     val jwt = postBody.get("jwt")?.asText() ?: return
 
-    val json = getJWTPayloadNMessage(context, jwt) ?: return
+    validateJWTNMessage(context, jwt) ?: return
+
+    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
 
     RateLimitUtils.getValidatedRouteRateLimitNMessage(context, requestMap, rateLimitInfo) ?: return
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGuilds = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/upgradeGuilds") {
-            this.body = json.get("id").asLong()
+        httpClient.post<String>("${context.melijnApi}/guild/verificationcodes") {
+            this.body = userInfo.idLong
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }

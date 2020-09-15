@@ -8,17 +8,18 @@ import io.ktor.util.pipeline.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
-import me.melijn.siteapi.utils.getJWTPayloadNMessage
 import me.melijn.siteapi.utils.getPostBodyNMessage
+import me.melijn.siteapi.utils.validateJWTNMessage
 
 suspend fun PipelineContext<Unit, ApplicationCall>.handleGetUserSettings(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
 
-    val jwtJson = getJWTPayloadNMessage(context, jwt) ?: return
+    val jwtJson = validateJWTNMessage(context, jwt) ?: return
 
-    val userId = jwtJson.get("id")?.asText() ?: return
+    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
+    val userId = userInfo.idLong
 
     // Includes info like: does the user have premium
     val userSettings = objectMapper.readTree(
@@ -29,13 +30,13 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetUserSettings(context
         }
     )
 
-    val userInfo = userSettings.get("user")
+    val userJson = userSettings.get("user")
     val settings = userSettings.get("settings")
     val provided = userSettings.get("provided")
 
     val node = objectMapper.createObjectNode()
 
-    node.set<JsonNode>("user", userInfo)
+    node.set<JsonNode>("user", userJson)
     node.set<JsonNode>("settings", settings)
     node.set<JsonNode>("provided", provided)
 
@@ -48,9 +49,10 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostUserSe
     val jwt = postBody.get("jwt")?.asText() ?: return
     val settings = postBody.get("settings") ?: return
 
-    val jwtJson = getJWTPayloadNMessage(context, jwt) ?: return
+    validateJWTNMessage(context, jwt) ?: return
 
-    val userId = jwtJson.get("id").asText()
+    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
+    val userId = userInfo.idLong
 
     val node = objectMapper.createObjectNode()
         .set<JsonNode>("settings", settings)

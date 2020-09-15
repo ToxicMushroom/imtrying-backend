@@ -5,21 +5,21 @@ import io.ktor.response.*
 import io.ktor.util.pipeline.*
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
-import me.melijn.siteapi.utils.getJWTPayloadNMessage
 import me.melijn.siteapi.utils.getPostBodyNMessage
+import me.melijn.siteapi.utils.validateJWTNMessage
 
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUser(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
+    validateJWTNMessage(context, jwt) ?: return
 
-    val json = getJWTPayloadNMessage(context, jwt) ?: return
-
-    val avatar = json.get("avatar").asText()
-    val id = json.get("id").asLong()
-    val tag = json.get("tag").asText()
-    val defaultAvatarId = tag.takeLast(4).toInt() % 5
+    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
+    val avatar = userInfo.avatar
+    val id = userInfo.idLong
+    val tag = userInfo.userName + "#" + userInfo.discriminator
+    val defaultAvatarId = userInfo.discriminator.toInt() % 5
     val isGif = avatar.startsWith("a_")
     val isDefault = avatar == "null"
 
@@ -28,8 +28,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUse
         .put("isGif", isGif)
         .put("isDefault", isDefault)
         .put(
-            "avatar",
-            "https://cdn.discordapp.com/" + if (isDefault) {
+            "avatar", "https://cdn.discordapp.com/" + if (isDefault) {
                 "embed/avatars/${defaultAvatarId}.png"
             } else {
                 "avatars/${id}/$avatar"
