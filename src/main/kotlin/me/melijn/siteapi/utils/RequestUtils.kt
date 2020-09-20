@@ -5,6 +5,7 @@ import io.ktor.application.*
 import io.ktor.request.*
 import io.ktor.response.*
 import me.melijn.siteapi.models.RequestContext
+import me.melijn.siteapi.models.UserInfo
 import me.melijn.siteapi.objectMapper
 
 suspend fun validateJWTNMessage(context: RequestContext, jwt: String): Boolean? {
@@ -21,6 +22,21 @@ suspend fun validateJWTNMessage(context: RequestContext, jwt: String): Boolean? 
 
     return true
 }
+
+
+suspend fun getUserInfoNMessage(context: RequestContext, jwt: String): UserInfo? {
+    val ui = context.daoManager.userWrapper.getUserInfo(jwt)
+    if (ui == null) {
+        context.call.respondText(
+            objectMapper.createObjectNode()
+                .put("status", "invalidated")
+                .toString()
+        )
+    }
+
+    return ui
+}
+
 
 suspend fun getPostBodyNMessage(call: ApplicationCall): JsonNode? {
     return try {

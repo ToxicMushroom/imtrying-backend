@@ -6,6 +6,7 @@ import io.ktor.util.pipeline.*
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.utils.getPostBodyNMessage
+import me.melijn.siteapi.utils.getUserInfoNMessage
 import me.melijn.siteapi.utils.validateJWTNMessage
 
 
@@ -15,7 +16,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUse
     val jwt = postBody.get("jwt")?.asText() ?: return
     validateJWTNMessage(context, jwt) ?: return
 
-    val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
+    val userInfo = getUserInfoNMessage(context, jwt) ?: return
     val avatar = userInfo.avatar
     val id = userInfo.idLong
     val tag = userInfo.userName + "#" + userInfo.discriminator
@@ -24,6 +25,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUse
     val isDefault = avatar == "null"
 
     val node = objectMapper.createObjectNode()
+        .put("status", "success")
         .put("tag", tag)
         .put("isGif", isGif)
         .put("isDefault", isDefault)
@@ -39,3 +41,5 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptUse
         node.toString()
     }
 }
+
+
