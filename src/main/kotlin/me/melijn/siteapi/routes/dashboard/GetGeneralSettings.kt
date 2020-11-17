@@ -64,7 +64,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostGuildG
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnPostGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("$${context.melijnApi}/postsettings/general/$guildId") {
+        httpClient.post<String>("${context.melijnApi}/postsettings/general/$guildId") {
             this.body = node.toString()
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")
