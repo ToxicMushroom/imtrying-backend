@@ -41,7 +41,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetGuild(context: Reque
 
     val node = objectMapper.createObjectNode()
         .put("name", guildInfo.name)
-        .put("isGif", guildInfo.icon.startsWith("a_"))
+        .put("isGif", guildInfo.icon?.startsWith("a_") ?: false)
         .put("icon", guildInfo.icon)
         .put("id", guildId)
 

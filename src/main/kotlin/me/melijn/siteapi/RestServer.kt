@@ -15,10 +15,7 @@ import me.melijn.siteapi.database.DaoManager
 import me.melijn.siteapi.models.ContextContainer
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.routes.commands.handleGetCommands
-import me.melijn.siteapi.routes.dashboard.handleCookieDecryptPostGuildGeneral
-import me.melijn.siteapi.routes.dashboard.handleCookieDecryptPostUserSettings
-import me.melijn.siteapi.routes.dashboard.handleGetGeneralSettings
-import me.melijn.siteapi.routes.dashboard.handleGetUserSettings
+import me.melijn.siteapi.routes.dashboard.*
 import me.melijn.siteapi.routes.general.handleCookieDecryptGuilds
 import me.melijn.siteapi.routes.general.handleCookieDecryptUser
 import me.melijn.siteapi.routes.general.handleGetGuild
@@ -109,6 +106,16 @@ class RestServer(settings: Settings, daoManager: DaoManager) {
             // Cookie & general info -> saved or not saved
             post("/postsettings/general") {
                 this.handleCookieDecryptPostGuildGeneral(RequestContext(contextContainer, call))
+            }
+
+            // Cookie & guildId -> discord guild & general info
+            post("/getsettings/logging") {
+                this.handleGetLoggingSettings(RequestContext(contextContainer, call))
+            }
+
+            // Cookie & general info -> saved or not saved
+            post("/setsettings/logging") {
+                this.handleSetLoggingSettings(RequestContext(contextContainer, call))
             }
 
             // Cookie & general info -> saved or not saved

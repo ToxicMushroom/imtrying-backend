@@ -13,6 +13,6 @@ data class GuildsInfo(
         val name: String,
 
         @JsonProperty("icon")
-        val icon: String
+        val icon: String?
     )
 }
