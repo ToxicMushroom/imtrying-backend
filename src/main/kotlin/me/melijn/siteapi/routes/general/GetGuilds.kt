@@ -84,7 +84,7 @@ suspend fun getCachedGuildsOrRefresh(context: RequestContext, jwt: String, token
     val melijnGuilds = httpClient.post<String>("${context.melijnApi}/upgradeGuilds") {
         this.body = partialGuilds.toString()
         this.headers {
-            this.append("Authorization", "Bearer ${context.melijnApiKey}")
+            this.append("Authorization", context.melijnApiKey)
         }
     }
 

@@ -20,6 +20,7 @@ import me.melijn.siteapi.routes.general.handleCookieDecryptGuilds
 import me.melijn.siteapi.routes.general.handleCookieDecryptUser
 import me.melijn.siteapi.routes.general.handleGetGuild
 import me.melijn.siteapi.routes.handleCookieFromCode
+import me.melijn.siteapi.routes.verify.handleVerifyGuild
 import me.melijn.siteapi.routes.verify.handleVerifyGuilds
 import me.melijn.siteapi.utils.RateLimitUtils
 import me.melijn.siteapi.utils.RateLimitUtils.getValidatedRouteRateLimitNMessage
@@ -96,6 +97,12 @@ class RestServer(settings: Settings, daoManager: DaoManager) {
             post("/cookie/decrypt/verifyguilds") {
                 this.handleVerifyGuilds(RequestContext(contextContainer, call))
             }
+
+            post("/verifyguild") {
+                this.handleVerifyGuild(RequestContext(contextContainer, call))
+            }
+
+
 
             // ---=== SETTINGS ===---
             // Cookie -> discord guilds & user info & general info

@@ -7,8 +7,13 @@ class Settings(
     val redis: Redis,
     val discordOauth: DiscordOauth,
     val restServer: RestServer,
+    val recaptcha: GoogleRecaptcha,
     val melijnApi: MelijnApi
 ) {
+
+    data class GoogleRecaptcha(
+        val secret: String
+    )
 
     data class Redis(
         val host: String,
@@ -62,6 +67,9 @@ class Settings(
                 ),
                 RestServer(
                     Decoders.BASE64.decode(get("restserver.jwtkey"))
+                ),
+                GoogleRecaptcha(
+                    get("googlerecaptcha.secret")
                 ),
                 MelijnApi(
                     get("melijnapi.host"),

@@ -10,6 +10,7 @@ data class RequestContext(
     val discordApi = contextContainer.settings.discordOauth.host
     val melijnApi = contextContainer.settings.melijnApi.host
     val melijnApiKey = contextContainer.settings.melijnApi.token
+    val recaptchaSecret = contextContainer.settings.recaptcha.secret
     val jwtParser = contextContainer.jwtParser
     val jwtKey = contextContainer.settings.restServer.jwtKey
 

@@ -17,10 +17,10 @@ import me.melijn.siteapi.utils.validateJWTNMessage
 
 object CookieDecryptVerifyGuilds {
     val requestMap = mutableMapOf<String, RateLimitUtils.RequestInfo>()
-    val rateLimitInfo = RateLimitUtils.RateLimitInfo(2, 5000)
+    val rateLimitInfo = RateLimitUtils.RateLimitInfo(3, 5000)
 }
 
-suspend inline fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(context: RequestContext) {
+suspend fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(context: RequestContext) {
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
@@ -33,10 +33,10 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(con
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGuilds = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/guild/verificationcodes") {
-            this.body = userInfo.idLong
+        httpClient.post<String>("${context.melijnApi}/unverified/guilds") {
+            this.body = userInfo.idLong.toString()
             this.headers {
-                this.append("Authorization", "Bearer ${context.melijnApiKey}")
+                this.append("Authorization", context.melijnApiKey)
             }
         }
     )
