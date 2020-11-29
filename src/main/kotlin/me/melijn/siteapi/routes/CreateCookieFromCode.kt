@@ -1,5 +1,6 @@
 package me.melijn.siteapi.routes
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.impl.DefaultJwtBuilder
 import io.jsonwebtoken.security.Keys
@@ -27,8 +28,12 @@ object CreateCookieFromCodeHandler {
 }
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(context: RequestContext) {
+
+    val routePart: String
     val code = try {
-        objectMapper.readTree(call.receiveText())?.get("code")?.asText()
+        val body: JsonNode? = objectMapper.readTree(call.receiveText())
+        routePart = body?.get("route")?.asText() ?: throw IllegalStateException()
+        body?.get("code")?.asText()
             ?: throw IllegalStateException()
     } catch (t: Throwable) {
         val json = objectMapper.createObjectNode()
@@ -43,7 +48,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
         append("client_secret", oauth.botSecret)
         append("grant_type", "authorization_code")
         append("code", code)
-        append("redirect_uri", oauth.redirectUrl)
+        append("redirect_uri", oauth.redirectUrl + routePart)
     }.formUrlEncode()
 
     getValidatedRouteRateLimitNMessage(
@@ -79,7 +84,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
             httpClient.get<String>("${context.discordApi}/users/@me") {
                 this.headers {
                     this.append("Authorization", "Bearer $token")
-                    this.append("user-agent", "poopoo")
+                    this.append("user-agent", "melijn bot")
                 }
             }
         )
@@ -128,6 +133,8 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
             ),
             lifeTime
         )
+
+        println(jwt)
 
         call.respondText { json.toString() }
 
