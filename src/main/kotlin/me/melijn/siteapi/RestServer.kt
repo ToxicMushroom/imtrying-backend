@@ -19,6 +19,7 @@ import me.melijn.siteapi.routes.dashboard.*
 import me.melijn.siteapi.routes.general.handleCookieDecryptGuilds
 import me.melijn.siteapi.routes.general.handleCookieDecryptUser
 import me.melijn.siteapi.routes.general.handleGetGuild
+import me.melijn.siteapi.routes.general.handleGetStats
 import me.melijn.siteapi.routes.handleCookieFromCode
 import me.melijn.siteapi.routes.verify.handleVerifyGuild
 import me.melijn.siteapi.routes.verify.handleVerifyGuilds
@@ -66,6 +67,10 @@ class RestServer(settings: Settings, daoManager: DaoManager) {
             // full command list
             get("/commands") {
                 this.handleGetCommands(RequestContext(contextContainer, call))
+            }
+
+            get("/publicStats") {
+                this.handleGetStats(RequestContext(contextContainer, call))
             }
 
             // Cookie -> user info
@@ -123,6 +128,16 @@ class RestServer(settings: Settings, daoManager: DaoManager) {
             // Cookie & general info -> saved or not saved
             post("/setsettings/logging") {
                 this.handleSetLoggingSettings(RequestContext(contextContainer, call))
+            }
+
+            // Cookie & guildId -> discord guild & general info
+            post("/getsettings/starboard") {
+                this.handleGetStarboardSettings(RequestContext(contextContainer, call))
+            }
+
+            // Cookie & general info -> saved or not saved
+            post("/setsettings/starboard") {
+                this.handleSetStarboardSettings(RequestContext(contextContainer, call))
             }
 
             // Cookie & general info -> saved or not saved
