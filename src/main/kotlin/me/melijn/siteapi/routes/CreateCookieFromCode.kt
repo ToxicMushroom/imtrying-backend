@@ -134,8 +134,6 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
             lifeTime
         )
 
-        println(jwt)
-
         call.respondText { json.toString() }
 
     } catch (t: Throwable) {
