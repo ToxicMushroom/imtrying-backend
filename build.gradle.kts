@@ -34,15 +34,15 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation("com.fasterxml.jackson.core:jackson-core:2.12.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.12.1")
 
     // https://github.com/FasterXML/jackson-module-kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
 
     // https://mvnrepository.com/artifact/io.ktor/ktor-client-cio
-    implementation("io.ktor:ktor:1.4.3")
-    implementation("io.ktor:ktor-client-okhttp:1.4.3")
-    implementation("io.ktor:ktor-server-netty:1.4.3")
+    implementation("io.ktor:ktor:1.5.0")
+    implementation("io.ktor:ktor-client-okhttp:1.5.0")
+    implementation("io.ktor:ktor-server-netty:1.5.0")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21")
