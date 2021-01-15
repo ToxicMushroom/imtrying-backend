@@ -17,7 +17,7 @@ blocks:
             - docker build -t ${DOCKER_USERNAME}/${DOCKER_IMAGE}:melijn-backend-$SEMAPHORE_GIT_SHA .
             - docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:melijn-backend-$SEMAPHORE_GIT_SHA
 promotions:
-  - name: Prod pull img & restart app
+  - name: Prod pull img & restart backend
     pipeline_file: production-1-deploy.yml
     auto_promote_on:
       - result: passed
