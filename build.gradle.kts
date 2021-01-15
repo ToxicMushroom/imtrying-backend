@@ -74,6 +74,6 @@ tasks {
     }
 
     shadowJar {
-        archiveFileName.set("melijn-site-backend.jar")
+        archiveFileName.set("melijn-backend.jar")
     }
 }
