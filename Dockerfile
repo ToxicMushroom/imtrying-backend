@@ -9,6 +9,6 @@ FROM openjdk:15-jdk
 WORKDIR /opt/melijn_backend
 COPY --from=builder ./etc/melijn_backend/build/libs/ .
 ENTRYPOINT java \
-    -Xmx250M \
+    -Xmx50M \
     -jar \
     ./melijn-backend.jar
