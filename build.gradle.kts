@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("application")
     id("com.github.johnrengelman.shadow") version "6.1.0"
-    id("org.jetbrains.kotlin.jvm") version "1.4.21"
+    id("org.jetbrains.kotlin.jvm") version "1.4.30"
 }
 
 application {
@@ -40,12 +40,12 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
 
     // https://mvnrepository.com/artifact/io.ktor/ktor-client-cio
-    implementation("io.ktor:ktor:1.5.0")
-    implementation("io.ktor:ktor-client-okhttp:1.5.0")
-    implementation("io.ktor:ktor-server-netty:1.5.0")
+    implementation("io.ktor:ktor:1.5.1")
+    implementation("io.ktor:ktor-client-okhttp:1.5.1")
+    implementation("io.ktor:ktor-server-netty:1.5.1")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30")
 
     // https://github.com/jwtk/jjwt
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
@@ -53,10 +53,10 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     // https://search.maven.org/artifact/com.zaxxer/HikariCP
-    implementation("com.zaxxer:HikariCP:3.4.5")
+    implementation("com.zaxxer:HikariCP:4.0.2")
 
     // implementation("com.github.husnjak:IGDB-API-JVM:0.7")
-    implementation("io.lettuce:lettuce-core:5.3.4.RELEASE")
+    implementation("io.lettuce:lettuce-core:5.3.6.RELEASE")
 
     // https://github.com/cdimascio/dotenv-kotlin
     implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
