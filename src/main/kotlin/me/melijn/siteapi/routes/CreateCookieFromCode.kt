@@ -33,7 +33,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.handleCookieFromCode(c
     val code = try {
         val body: JsonNode? = objectMapper.readTree(call.receiveText())
         routePart = body?.get("route")?.asText() ?: throw IllegalStateException()
-        body?.get("code")?.asText()
+        body.get("code")?.asText()
             ?: throw IllegalStateException()
     } catch (t: Throwable) {
         val json = objectMapper.createObjectNode()
