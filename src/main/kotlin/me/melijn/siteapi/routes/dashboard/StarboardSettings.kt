@@ -63,15 +63,14 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleSetStarboardSettings(co
     node.set<JsonNode>("settings", settings)
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
-    val melijnPostGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/setsettings/starboard/$guildId") {
-            this.body = node.toString()
-            this.headers {
-                this.append("Authorization", "Bearer ${context.melijnApiKey}")
-            }
-        }
-    )
 
-    call.respondText { melijnPostGeneralSettings.toString() }
+    val res = httpClient.post<String>("${context.melijnApi}/setsettings/starboard/$guildId") {
+        this.body = node.toString()
+        this.headers {
+            this.append("Authorization", "Bearer ${context.melijnApiKey}")
+        }
+    }
+
+    call.respondText(res)
 }
 
