@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("application")
     id("com.github.johnrengelman.shadow") version "6.1.0"
-    id("org.jetbrains.kotlin.jvm") version "1.4.30"
+    id("org.jetbrains.kotlin.jvm") version "1.4.31"
 }
 
 application {
@@ -25,27 +25,27 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-jdk8
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.3")
 
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation("com.fasterxml.jackson.core:jackson-core:2.12.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.12.2")
 
     // https://github.com/FasterXML/jackson-module-kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.2")
 
     // https://mvnrepository.com/artifact/io.ktor/ktor-client-cio
-    implementation("io.ktor:ktor:1.5.1")
-    implementation("io.ktor:ktor-client-okhttp:1.5.1")
-    implementation("io.ktor:ktor-server-netty:1.5.1")
+    implementation("io.ktor:ktor:1.5.2")
+    implementation("io.ktor:ktor-client-okhttp:1.5.2")
+    implementation("io.ktor:ktor-server-netty:1.5.2")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
 
     // https://github.com/jwtk/jjwt
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
@@ -53,7 +53,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     // https://search.maven.org/artifact/com.zaxxer/HikariCP
-    implementation("com.zaxxer:HikariCP:4.0.2")
+    implementation("com.zaxxer:HikariCP:4.0.3")
 
     // implementation("com.github.husnjak:IGDB-API-JVM:0.7")
     implementation("io.lettuce:lettuce-core:5.3.6.RELEASE")
@@ -69,7 +69,7 @@ tasks {
     withType(KotlinCompile::class) {
         kotlinOptions {
             // 15 not supported at this time 25/10/2020 | latest kotlin: 1.4.10
-            jvmTarget = "14"
+            jvmTarget = "15"
         }
     }
 
