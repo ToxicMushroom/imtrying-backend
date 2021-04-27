@@ -13,6 +13,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import me.melijn.siteapi.database.DaoManager
 import me.melijn.siteapi.models.ContextContainer
+import me.melijn.siteapi.models.PodInfo
 import me.melijn.siteapi.models.RequestContext
 import me.melijn.siteapi.routes.commands.handleGetCommands
 import me.melijn.siteapi.routes.dashboard.*
@@ -33,7 +34,7 @@ val objectMapper: ObjectMapper = jacksonObjectMapper()
 val httpClient = HttpClient()
 val jsonType = ContentType.parse("Application/JSON")
 
-class RestServer(settings: Settings, daoManager: DaoManager) {
+class RestServer(settings: Settings, daoManager: DaoManager, podInfo: PodInfo) {
 
 
     private val jwtParser: JwtParser = Jwts.parserBuilder()
@@ -42,7 +43,7 @@ class RestServer(settings: Settings, daoManager: DaoManager) {
     private val requestMap = ConcurrentHashMap<String, RateLimitUtils.RequestInfo>()
     private val rateLimitInfo = RateLimitUtils.RateLimitInfo(100, 60_000)
     private val blackList = mutableListOf<String>()
-    private val contextContainer = ContextContainer(jwtParser, settings, daoManager)
+    private val contextContainer = ContextContainer(jwtParser, settings, daoManager, podInfo)
 
     private val server: NettyApplicationEngine = embeddedServer(Netty, 2607, configure = {
         this.runningLimit = 50

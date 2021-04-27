@@ -19,13 +19,13 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetGuild(context: Reque
     val jwt = postBody.get("jwt")?.asText() ?: return
 
     validateJWTNMessage(context, jwt) ?: return
-    val guildId = postBody.get("id")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText()?.toLongOrNull() ?: return
 
     val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
     val guildInfoN = context.daoManager.guildWrapper.getGuildInfo(jwt)
     val guildInfo = if (guildInfoN == null) {
         // Includes info like: is melijn a member, does the user have permission to the dashboard
-        val melijnGuild = httpClient.post<String>("${context.melijnApi}/guild/$guildId") {
+        val melijnGuild = httpClient.post<String>("${context.getMelijnHost(guildId)}/guild/$guildId") {
             this.body = userInfo.idLong.toString()
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")

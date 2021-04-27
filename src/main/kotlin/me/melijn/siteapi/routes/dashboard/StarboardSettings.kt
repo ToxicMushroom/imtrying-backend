@@ -16,7 +16,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetStarboardSettings(co
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
-    val guildId = postBody.get("id")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText()?.toLongOrNull() ?: return
 
     validateJWTNMessage(context, jwt) ?: return
 
@@ -25,7 +25,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetStarboardSettings(co
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/getsettings/starboard/$guildId") {
+        httpClient.post<String>("${context.getMelijnHost(guildId)}/getsettings/starboard/$guildId") {
             this.body = "$userId"
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")
@@ -51,7 +51,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleSetStarboardSettings(co
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
-    val guildId = postBody.get("id")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText()?.toLongOrNull() ?: return
     val settings = postBody.get("settings") ?: return
 
     validateJWTNMessage(context, jwt) ?: return
@@ -64,7 +64,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleSetStarboardSettings(co
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
 
-    val res = httpClient.post<String>("${context.melijnApi}/setsettings/starboard/$guildId") {
+    val res = httpClient.post<String>("${context.getMelijnHost(guildId)}/setsettings/starboard/$guildId") {
         this.body = node.toString()
         this.headers {
             this.append("Authorization", "Bearer ${context.melijnApiKey}")

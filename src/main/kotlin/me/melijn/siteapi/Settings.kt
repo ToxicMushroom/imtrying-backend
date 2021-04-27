@@ -72,7 +72,7 @@ class Settings(
                     get("googlerecaptcha.secret")
                 ),
                 MelijnApi(
-                    get("melijnapi.host"),
+                    get("melijnapi.host.pattern"),
                     get("melijnapi.token")
                 )
             )

@@ -7,5 +7,6 @@ import me.melijn.siteapi.database.DaoManager
 data class ContextContainer(
     val jwtParser: JwtParser,
     val settings: Settings,
-    val daoManager: DaoManager
+    val daoManager: DaoManager,
+    val podInfo: PodInfo // Info of pod0
 )

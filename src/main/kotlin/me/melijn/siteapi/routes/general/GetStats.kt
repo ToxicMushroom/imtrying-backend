@@ -18,9 +18,10 @@ object GetStats {
     var cachedValue = ""
 }
 
+// TODO: fetch all stats
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleGetStats(context: RequestContext) {
     if (context.now - lastCacheRefresh > cacheRefreshTime) {
-        val json = httpClient.get<String>("${context.melijnApi}/publicStats")
+        val json = httpClient.get<String>("${context.getRandomHost()}/publicStats")
         cachedValue = json
         lastCacheRefresh = context.now
     }

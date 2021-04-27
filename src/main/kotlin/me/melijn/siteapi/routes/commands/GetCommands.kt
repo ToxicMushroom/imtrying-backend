@@ -20,7 +20,7 @@ object GetCommands {
 
 suspend inline fun PipelineContext<Unit, ApplicationCall>.handleGetCommands(context: RequestContext) {
     if (context.now - lastCacheRefresh > cacheRefreshTime) {
-        val json = httpClient.get<String>("${context.melijnApi}/fullCommands")
+        val json = httpClient.get<String>("${context.getRandomHost()}/fullCommands")
         cachedValue = json
         lastCacheRefresh = context.now
     }

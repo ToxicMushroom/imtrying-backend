@@ -15,15 +15,14 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetUserSettings(context
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
-
-    val jwtJson = validateJWTNMessage(context, jwt) ?: return
+    validateJWTNMessage(context, jwt) ?: return
 
     val userInfo = context.daoManager.userWrapper.getUserInfo(jwt) ?: return
     val userId = userInfo.idLong
 
     // Includes info like: does the user have premium
     val userSettings = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/getsettings/user/$userId") {
+        httpClient.post<String>("${context.getRandomHost()}/getsettings/user/$userId") {
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")
             }
@@ -59,7 +58,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleCookieDecryptPostUserSe
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnPostUserSettings = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/postsettings/user/$userId") {
+        httpClient.post<String>("${context.getRandomHost()}/postsettings/user/$userId") {
             this.body = node.toString()
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")

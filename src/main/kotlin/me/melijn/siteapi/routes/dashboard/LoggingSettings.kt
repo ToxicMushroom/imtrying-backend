@@ -15,7 +15,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetLoggingSettings(cont
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
-    val guildId = postBody.get("id")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText()?.toLongOrNull() ?: return
 
     validateJWTNMessage(context, jwt) ?: return
 
@@ -24,7 +24,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleGetLoggingSettings(cont
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/getsettings/logging/$guildId") {
+        httpClient.post<String>("${context.getMelijnHost(guildId)}/getsettings/logging/$guildId") {
             this.body = "$userId"
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")
@@ -50,7 +50,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleSetLoggingSettings(cont
     val postBody = getPostBodyNMessage(call) ?: return
 
     val jwt = postBody.get("jwt")?.asText() ?: return
-    val guildId = postBody.get("id")?.asText() ?: return
+    val guildId = postBody.get("id")?.asText()?.toLongOrNull() ?: return
     val settings = postBody.get("settings") ?: return
 
     validateJWTNMessage(context, jwt) ?: return
@@ -63,7 +63,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleSetLoggingSettings(cont
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
     val melijnPostGeneralSettings = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/setsettings/logging/$guildId") {
+        httpClient.post<String>("${context.getMelijnHost(guildId)}/setsettings/logging/$guildId") {
             this.body = node.toString()
             this.headers {
                 this.append("Authorization", "Bearer ${context.melijnApiKey}")

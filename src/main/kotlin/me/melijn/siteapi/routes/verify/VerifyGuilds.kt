@@ -1,6 +1,7 @@
 package me.melijn.siteapi.routes.verify
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.application.*
 import io.ktor.client.request.*
 import io.ktor.response.*
@@ -31,18 +32,24 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuilds(context: R
 
     RateLimitUtils.getValidatedRouteRateLimitNMessage(context, requestMap, rateLimitInfo) ?: return
 
-    // Includes info like: is melijn a member, does the user have permission to the dashboard
-    val melijnGuilds = objectMapper.readTree(
-        httpClient.post<String>("${context.melijnApi}/unverified/guilds") {
-            this.body = userInfo.idLong.toString()
-            this.headers {
-                this.append("Authorization", context.melijnApiKey)
+    val allGuilds = objectMapper.createArrayNode()
+    for (id in context.getPodIds()) {
+        // Includes info like: is melijn a member, does the user have permission to the dashboard
+        val base = context.hostPattern.replace("{podId}", "$id")
+        val melijnGuilds = objectMapper.readTree(
+            httpClient.post<String>("${base}/unverified/guilds") {
+                this.body = userInfo.idLong.toString()
+                this.headers {
+                    this.append("Authorization", context.melijnApiKey)
+                }
             }
-        }
-    )
+        )
+        if (melijnGuilds is ArrayNode)
+            allGuilds.addAll(melijnGuilds)
+    }
 
     val node = objectMapper.createObjectNode()
-        .set<JsonNode>("guilds", melijnGuilds)
+        .set<JsonNode>("guilds", allGuilds)
 
     call.respondText {
         node.toString()

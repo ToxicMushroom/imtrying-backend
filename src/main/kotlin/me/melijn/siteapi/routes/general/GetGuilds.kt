@@ -80,16 +80,20 @@ suspend fun getCachedGuildsOrRefresh(context: RequestContext, jwt: String, token
         }
     )
 
-    // Includes info like: is melijn a member, does the user have permission to the dashboard
-    val melijnGuilds = httpClient.post<String>("${context.melijnApi}/upgradeGuilds") {
-        this.body = partialGuilds.toString()
-        this.headers {
-            this.append("Authorization", context.melijnApiKey)
+    val list = mutableListOf<GuildsInfo.GuildInfo>()
+    for (id in context.getPodIds()) {
+        // Includes info like: is melijn a member, does the user have permission to the dashboard
+        val base = context.hostPattern.replace("{podId}", "$id")
+        val melijnGuilds = httpClient.post<String>("$base/upgradeGuilds") {
+            this.body = partialGuilds.toString()
+            this.headers {
+                this.append("Authorization", context.melijnApiKey)
+            }
         }
+
+        val subList = objectMapper.readValue<List<GuildsInfo.GuildInfo>>(melijnGuilds)
+        list.addAll(subList)
     }
-
-
-    val list = objectMapper.readValue<List<GuildsInfo.GuildInfo>>(melijnGuilds)
 
     val guildsInfo = GuildsInfo(list)
     guildsWrapper.setGuildsInfo(jwt, guildsInfo)

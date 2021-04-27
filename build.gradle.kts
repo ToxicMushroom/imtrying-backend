@@ -23,29 +23,35 @@ repositories {
     mavenCentral()
 }
 
+val ktx = "1.4.3"
+val ktor = "1.5.3"
+val jackson = "2.12.3"
+val kotlin = "1.4.31"
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$ktx")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-jdk8
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$ktx")
 
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation("com.fasterxml.jackson.core:jackson-core:2.12.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:$jackson")
 
     // https://github.com/FasterXML/jackson-module-kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson")
 
     // https://mvnrepository.com/artifact/io.ktor/ktor-client-cio
-    implementation("io.ktor:ktor:1.5.2")
-    implementation("io.ktor:ktor-client-okhttp:1.5.2")
-    implementation("io.ktor:ktor-server-netty:1.5.2")
+    implementation("io.ktor:ktor:$ktor")
+    implementation("io.ktor:ktor-client-okhttp:$ktor")
+    implementation("io.ktor:ktor-server-netty:$ktor")
+    implementation("io.ktor:ktor-jackson:$ktor")
+
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin")
 
     // https://github.com/jwtk/jjwt
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
@@ -56,7 +62,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
 
     // implementation("com.github.husnjak:IGDB-API-JVM:0.7")
-    implementation("io.lettuce:lettuce-core:5.3.6.RELEASE")
+    // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
+    implementation("io.lettuce:lettuce-core:6.1.1.RELEASE")
 
     // https://github.com/cdimascio/dotenv-kotlin
     implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
@@ -68,7 +75,6 @@ tasks {
     }
     withType(KotlinCompile::class) {
         kotlinOptions {
-            // 15 not supported at this time 25/10/2020 | latest kotlin: 1.4.10
             jvmTarget = "15"
         }
     }

@@ -18,4 +18,8 @@ class GuildWrapper(private val guildDao: GuildDao) {
             5
         )
     }
+
+    fun setGuildInfo(jwt: String, guildId: Long, guildInfo: GuildsInfo.GuildInfo) {
+        setGuildInfo(jwt, guildId.toString(), guildInfo)
+    }
 }

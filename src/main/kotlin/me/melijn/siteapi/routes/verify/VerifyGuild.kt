@@ -44,7 +44,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.handleVerifyGuild(context: Re
     }
 
     // Includes info like: is melijn a member, does the user have permission to the dashboard
-    httpClient.post<String>("${context.melijnApi}/unverified/verify") {
+    httpClient.post<String>("${context.getMelijnHost(guildId)}/unverified/verify") {
         this.body = objectMapper.createObjectNode()
             .put("userId", userInfo.idLong.toString())
             .put("guildId", guildId.toString())
