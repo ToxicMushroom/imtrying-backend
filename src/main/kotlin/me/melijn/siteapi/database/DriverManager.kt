@@ -10,18 +10,15 @@ import org.slf4j.LoggerFactory
 
 class DriverManager(redisSettings: Settings.Redis) {
 
-    val logger = LoggerFactory.getLogger(DriverManager::class.java)
+    private val logger = LoggerFactory.getLogger(DriverManager::class.java)
 
     var redisClient: RedisClient? = null
     var redisConnection: StatefulRedisConnection<String, String?>? = null
 
     init {
-        val host  = System.getenv("REDIS_HOST")
-
         if (redisSettings.enabled) {
             logger.info("Connecting to redis..")
             connectRedis(redisSettings.host, redisSettings.port)
-
         }
     }
 
@@ -54,5 +51,4 @@ class DriverManager(redisSettings: Settings.Redis) {
             recursiveConnectRedis(host, port)
         }
     }
-
 }
