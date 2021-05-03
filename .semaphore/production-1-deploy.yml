@@ -8,10 +8,10 @@ blocks:
   - name: Deploy
     task:
       secrets:
-        - name: vps2-deploy-details
+        - name: prod-deploy-details
       jobs:
         - name: Pull image & restart bot
           commands:
             - chmod 400 /home/semaphore/.ssh/id_rsa
-            - ssh-keyscan -p ${SSH_PORT} -H ${SSH_HOST} >> /home/semaphore/.ssh/known_hosts
-            - ssh ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "cd /opt/melijn_backend; sudo ./replaceImgPullAndRestart.sh melijn-backend-${SEMAPHORE_GIT_SHA}"
+            - ssh-keyscan -p ${PROD_SSH_PORT} -H ${PROD_SSH_HOST} >> /home/semaphore/.ssh/known_hosts
+            - "ssh ${PROD_SSH_USER}@${PROD_SSH_HOST} -p ${PROD_SSH_PORT} sudo /opt/k3s/merlijn/backend/deploy.sh ${SEMAPHORE_GIT_SHA}"
