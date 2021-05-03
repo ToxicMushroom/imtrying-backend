@@ -5,8 +5,8 @@ import me.melijn.siteapi.objectMapper
 
 class GuildWrapper(private val guildDao: GuildDao) {
 
-    suspend fun getGuildInfo(jwt: String): GuildsInfo.GuildInfo? {
-        return guildDao.getCacheEntry(jwt)?.let {
+    suspend fun getGuildInfo(jwt: String, guildId: Long): GuildsInfo.GuildInfo? {
+        return guildDao.getCacheEntry("$jwt:$guildId")?.let {
             objectMapper.readValue(it, GuildsInfo.GuildInfo::class.java)
         }
     }

@@ -29,7 +29,11 @@ class Settings(
     )
 
     data class RestServer(
-        val jwtKey: ByteArray
+        val port: Int,
+        val authorization: String,
+        val jwtKey: ByteArray,
+        val runningLimit: Int,
+        val requestQueueLimit: Int
     )
 
     data class MelijnApi(
@@ -44,8 +48,10 @@ class Settings(
             this.ignoreIfMissing = true
         }
 
-        fun get(path: String): String = dotenv[path.toUpperCase().replace(".", "_")]
-            ?: throw IllegalStateException("missing env value: $path")
+        fun get(path: String): String {
+            val fixedPath = path.toUpperCase().replace(".", "_")
+            return dotenv[fixedPath] ?: throw IllegalStateException("missing env value: $fixedPath")
+        }
 
         private fun getLong(path: String): Long = get(path).toLong()
         private fun getInt(path: String): Int = get(path).toInt()
@@ -66,7 +72,11 @@ class Settings(
                     get("discordoauth.redirecturl")
                 ),
                 RestServer(
-                    Decoders.BASE64.decode(get("restserver.jwtkey"))
+                    getInt("restserver.port"),
+                    get("restserver.authorization"),
+                    Decoders.BASE64.decode(get("restserver.jwtkey")),
+                    getInt("restserver.runninglimit"),
+                    getInt("restserver.requestqueuelimit"),
                 ),
                 GoogleRecaptcha(
                     get("googlerecaptcha.secret")

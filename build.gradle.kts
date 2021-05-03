@@ -24,7 +24,7 @@ repositories {
 }
 
 val ktx = "1.4.3"
-val ktor = "1.5.3"
+val ktor = "1.5.4"
 val jackson = "2.12.3"
 val kotlin = "1.4.31"
 dependencies {
@@ -46,6 +46,7 @@ dependencies {
     // https://mvnrepository.com/artifact/io.ktor/ktor-client-cio
     implementation("io.ktor:ktor:$ktor")
     implementation("io.ktor:ktor-client-okhttp:$ktor")
+    implementation("io.ktor:ktor-client-jackson:$ktor")
     implementation("io.ktor:ktor-server-netty:$ktor")
     implementation("io.ktor:ktor-jackson:$ktor")
 

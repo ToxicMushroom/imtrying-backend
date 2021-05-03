@@ -1,31 +1,32 @@
 package me.melijn.siteapi
 
-import io.ktor.client.request.*
-import kotlinx.coroutines.runBlocking
-import me.melijn.siteapi.database.DaoManager
-import me.melijn.siteapi.models.PodInfo
-import kotlin.system.exitProcess
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
 
+val objectMapper: ObjectMapper = jacksonObjectMapper()
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+
+val httpClient = HttpClient(OkHttp) {
+    expectSuccess = false
+    install(JsonFeature) {
+        serializer = JacksonSerializer(objectMapper)
+    }
+    install(UserAgent) {
+        agent = "Melijn Backend / 1.0.0 Website backend"
+    }
+}
 
 class MelijnSite {
 
     init {
-        val settings = Settings.initSettings()
-        val database = DaoManager(settings.redis)
-        val podInfo = runBlocking { fetchPodInfo(settings.melijnApi) }
-        val restServer = RestServer(settings, database, podInfo)
-        restServer.start()
+        val container = Container()
+        container.restServer.start()
     }
-
-    private suspend fun fetchPodInfo(melijnApi: Settings.MelijnApi): PodInfo {
-        return try {
-            httpClient.get(melijnApi.host.replace("{podId}", "0") + "/podinfo")
-        } catch (t: Throwable) {
-            t.printStackTrace()
-            exitProcess(404)
-        }
-    }
-
 }
 
 fun main() {

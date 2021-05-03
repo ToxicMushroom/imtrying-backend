@@ -1,64 +1,72 @@
-package me.melijn.siteapi.utils
+package me.melijn.siteapi.router
 
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
-import me.melijn.siteapi.models.RequestContext
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
-object RateLimitUtils {
+class RateLimiter(
+    private val maxRequests: Long,
+    timeSpan: Long,
+    timeUnit: TimeUnit = TimeUnit.SECONDS
+) {
+    private val timeSpanMillis = TimeUnit.MILLISECONDS.convert(timeSpan, timeUnit)
 
-    private val logger = LoggerFactory.getLogger(RateLimitUtils::class.java)
+    private val requestMap = ConcurrentHashMap<String, RequestInfo>()
+    private val blackList = mutableListOf<String>()
+    private val logger = LoggerFactory.getLogger(RateLimiter::class.java)
 
-    suspend fun getValidatedRouteRateLimitNMessage(
-        context: RequestContext,
-        requestMap: MutableMap<String, RequestInfo>,
-        rateInf: RateLimitInfo,
+    suspend fun incrementAndGetIsRatelimited(
+        context: IRouteContext,
         shouldLog: Boolean = false,
-        blackList: MutableList<String>? = null,
+        shouldBlackList: Boolean = false,
         blackListThreshold: Int = 5
-    ): Boolean? {
+    ): Boolean {
         val call = context.call
         val cfIp = call.request.header("cf-connecting-ip")
         val absoluteIp = cfIp ?: call.request.origin.remoteHost
-        if (blackList?.contains(absoluteIp) == true) {
+        if (shouldBlackList && blackList.contains(absoluteIp)) {
             logger.warn("$absoluteIp is a blackListed ip and made a request")
-            return null
+            return true
         }
 
-        val reqInfo = requestMap.getOrDefault(absoluteIp, RequestInfo(0, Collections.synchronizedList(mutableListOf())))
+        val default = RequestInfo(0, Collections.synchronizedList(mutableListOf()))
+        val reqInfo = requestMap.getOrDefault(absoluteIp, default)
 
-        if (context.now - reqInfo.lastTime < rateInf.timeSpan) {
-            val startX = (context.now - rateInf.timeSpan)
+        if (context.now - reqInfo.lastTime < timeSpanMillis) {
+            val startX = (context.now - timeSpanMillis)
             val amount = try {
                 val filtered = reqInfo.requestMap.filter { it > startX }
                 reqInfo.requestMap = Collections.synchronizedList(filtered)
                 filtered.size
             } catch (e: ConcurrentModificationException) {
-                rateInf.maxRequests.toInt()
+                maxRequests.toInt()
             }
-            if (amount >= rateInf.maxRequests) {
+
+            if (amount >= maxRequests) {
                 call.respondText("", status = HttpStatusCode.TooManyRequests)
                 if (reqInfo.previousResponse) {
                     reqInfo.previousResponse = false
                     reqInfo.rateLimitHits++
                     if (reqInfo.rateLimitHits >= blackListThreshold) {
-                        blackList?.add(absoluteIp)
+                        blackList.add(absoluteIp)
                         reqInfo.requestMap.clear()
                     }
                 } else {
                     reqInfo.rateLimitStreak++
-                    if (reqInfo.rateLimitStreak >= rateInf.maxRequests) {
-                        blackList?.add(absoluteIp)
+                    if (reqInfo.rateLimitStreak >= maxRequests) {
+                        blackList.add(absoluteIp)
                         reqInfo.requestMap.clear()
                     }
                 }
                 reqInfo.requestMap.add(context.now)
                 reqInfo.lastTime = context.now
                 logger.warn(absoluteIp + ": " + call.request.uri + " (Ratelimited)")
-                return null
+                return true
             }
         }
 
@@ -67,21 +75,8 @@ object RateLimitUtils {
         reqInfo.previousResponse = true
 
         requestMap[absoluteIp] = reqInfo
-        if (shouldLog)
-            logger.info(absoluteIp + ": " + call.request.uri)
-        return true
+        if (shouldLog) logger.info(absoluteIp + ": " + call.request.uri)
+        return false
     }
-
-    data class RequestInfo(
-        var lastTime: Long,
-        var requestMap: MutableList<Long>,
-        var previousResponse: Boolean = true, // True: passed, False: Ratelimited
-        var rateLimitHits: Int = 0,
-        var rateLimitStreak: Int = 0
-    )
-
-    data class RateLimitInfo(
-        val maxRequests: Long,
-        val timeSpan: Long
-    )
 }
+
