@@ -16,6 +16,7 @@ import me.melijn.siteapi.routes.dashboard.guild.StarboardRoute
 import me.melijn.siteapi.routes.dashboard.user.UserRoute
 import me.melijn.siteapi.routes.general.GetLoginGuildsRoute
 import me.melijn.siteapi.routes.general.GetLoginInfoRoute
+import me.melijn.siteapi.routes.stats.EventsRoute
 import me.melijn.siteapi.routes.stats.GetPublicStatsRoute
 import me.melijn.siteapi.routes.verify.GetVerifiableGuildsRoute
 import me.melijn.siteapi.routes.verify.VerifyGuildRoute
@@ -28,6 +29,7 @@ class RoutingClient(private val container: Container) {
         CommandsRoute(),
         CommandMapRoute(),
         GetPublicStatsRoute(),
+        EventsRoute(),
 
         CreateCookieRoute(),
 

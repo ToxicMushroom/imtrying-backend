@@ -77,18 +77,23 @@ interface IRouteContext {
 
 
     fun getMelijnHost(guildId: Long): String {
-        val podId = ((guildId ushr 22) % podInfo.shardCount)
-        return melijnHostPattern.replace("{podId}", "$podId")
+        val shardId = ((guildId ushr 22) % podInfo.shardCount).toInt()
+        val podId = shardId / podInfo.shardsPerPod
+        return getPodHostUrl(podId)
     }
 
     fun getRandomHost(): String {
         val podId = Random.nextInt(podInfo.podCount)
-        return melijnHostPattern.replace("{podId}", "$podId")
+        return getPodHostUrl(podId)
     }
 
     fun getPodIds(): IntRange = 0 until podInfo.podCount
 
     fun getQueryParm(key: String): String {
         return queryParams[key].toString()
+    }
+
+    fun getPodHostUrl(id: Int): String {
+        return melijnHostPattern.replace("{podId}", "$id")
     }
 }
