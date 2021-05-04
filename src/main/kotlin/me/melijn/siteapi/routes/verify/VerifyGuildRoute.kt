@@ -1,6 +1,7 @@
 package me.melijn.siteapi.routes.verify
 
 import io.ktor.client.request.*
+import io.ktor.http.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
@@ -9,7 +10,7 @@ import me.melijn.siteapi.router.RateLimiter
 import me.melijn.siteapi.utils.getBodyNMessage
 import me.melijn.siteapi.utils.getUserInfo
 
-class VerifyGuildRoute : AbstractRoute("/verifyguild") {
+class VerifyGuildRoute : AbstractRoute("/verifyguild", HttpMethod.Post) {
 
     init {
         rateLimiter = RateLimiter(10, 5)
