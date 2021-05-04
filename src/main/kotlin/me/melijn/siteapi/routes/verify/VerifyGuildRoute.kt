@@ -9,7 +9,7 @@ import me.melijn.siteapi.router.RateLimiter
 import me.melijn.siteapi.utils.getBodyNMessage
 import me.melijn.siteapi.utils.getUserInfo
 
-class VerifyGuildRoute : AbstractRoute("/verify/guild") {
+class VerifyGuildRoute : AbstractRoute("/verifyguild") {
 
     init {
         rateLimiter = RateLimiter(10, 5)
