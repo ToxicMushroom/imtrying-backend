@@ -19,6 +19,12 @@ val httpClient = HttpClient(OkHttp) {
     install(UserAgent) {
         agent = "Melijn Backend / 1.0.0 Website backend"
     }
+    defaultRequest {
+        this.timeout {
+            this.connectTimeoutMillis = 2000
+            this.requestTimeoutMillis = 2000
+        }
+    }
 }
 
 class MelijnSite {

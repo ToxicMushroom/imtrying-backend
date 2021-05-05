@@ -1,13 +1,11 @@
 package me.melijn.siteapi.routes.stats
 
-import io.ktor.client.request.*
 import io.ktor.response.*
-import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.MelijnStat
-import me.melijn.siteapi.models.PodInfo
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
+import me.melijn.siteapi.router.get
 
 class GetPublicStatsRoute : AbstractRoute("/publicStats") {
 
@@ -22,7 +20,7 @@ class GetPublicStatsRoute : AbstractRoute("/publicStats") {
             var statsSum: MelijnStat? = null
             for (id in context.getPodIds()) {
 
-                val stat = httpClient.get<MelijnStat>("${context.getPodHostUrl(id)}/publicStats")
+                val stat = context.get<MelijnStat>("${context.getPodHostUrl(id)}/publicStats") ?: continue
                 if (statsSum == null) statsSum = stat
                 else {
                     statsSum.bot.cpuUsage += stat.bot.cpuUsage

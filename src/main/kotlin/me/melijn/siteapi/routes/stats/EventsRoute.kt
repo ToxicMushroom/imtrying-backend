@@ -7,6 +7,7 @@ import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
+import me.melijn.siteapi.router.get
 import me.melijn.siteapi.utils.json
 
 class EventsRoute : AbstractRoute("/events") {
@@ -29,7 +30,7 @@ class EventsRoute : AbstractRoute("/events") {
             totalGuilds.clear()
             for (podId in 0 until context.podInfo.podCount) {
                 val url = "${context.melijnHostPattern.replace("{podId}", "$podId")}/events"
-                val json = httpClient.get<String>(url).json()
+                val json = context.get<String>(url)?.json() ?: continue
                 val events = json.get("events")
                 val commandUses = json.get("commandUses")
                 val highestGuilds = json.get("highestGuilds")

@@ -7,6 +7,7 @@ import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.RateLimiter
+import me.melijn.siteapi.router.post
 import me.melijn.siteapi.utils.getBodyNMessage
 import me.melijn.siteapi.utils.getUserInfo
 
@@ -28,7 +29,7 @@ class VerifyGuildRoute : AbstractRoute("/verifyguild", HttpMethod.Post) {
         }
 
         // Includes info like: is melijn a member, does the user have permission to the dashboard
-        httpClient.post<String>("${context.getMelijnHost(guildId)}/unverified/verify") {
+        val success = context.post<String>("${context.getMelijnHost(guildId)}/unverified/verify") {
             this.body = objectMapper.createObjectNode()
                 .put("userId", userInfo.idLong.toString())
                 .put("guildId", guildId.toString())
@@ -36,10 +37,10 @@ class VerifyGuildRoute : AbstractRoute("/verifyguild", HttpMethod.Post) {
             headers {
                 append("Authorization", context.melijnApiKey)
             }
-        }
+        } != null
 
         context.replyJson {
-            put("status", "success")
+            put("status", if (success) "success" else "failed")
         }
     }
 }

@@ -2,12 +2,14 @@ package me.melijn.siteapi.router
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.ktor.application.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import me.melijn.siteapi.Container
 import me.melijn.siteapi.Settings
 import me.melijn.siteapi.database.DaoManager
+import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.PodInfo
 import me.melijn.siteapi.objectMapper
 import kotlin.random.Random
@@ -95,5 +97,24 @@ interface IRouteContext {
 
     fun getPodHostUrl(id: Int): String {
         return melijnHostPattern.replace("{podId}", "$id")
+    }
+
+}
+
+suspend inline fun <reified T> IRouteContext.post(url: String, function: HttpRequestBuilder.() -> Unit = {}): T? {
+    return try {
+        httpClient.post<T>(url, function)
+    } catch (t: Throwable) {
+        t.printStackTrace()
+        null
+    }
+}
+
+suspend inline fun <reified T> IRouteContext.get(url: String, function: HttpRequestBuilder.() -> Unit = {}): T? {
+    return try {
+        httpClient.get<T>(url, function)
+    } catch (t: Throwable) {
+        t.printStackTrace()
+        null
     }
 }

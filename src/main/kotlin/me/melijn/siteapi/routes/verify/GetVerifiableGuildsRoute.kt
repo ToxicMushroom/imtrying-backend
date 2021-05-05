@@ -3,11 +3,11 @@ package me.melijn.siteapi.routes.verify
 import com.fasterxml.jackson.databind.node.ArrayNode
 import io.ktor.client.request.*
 import io.ktor.http.*
-import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.RateLimiter
+import me.melijn.siteapi.router.post
 import me.melijn.siteapi.utils.getUserInfo
 import me.melijn.siteapi.utils.json
 
@@ -23,12 +23,12 @@ class GetVerifiableGuildsRoute : AbstractRoute("/cookie/decrypt/verifyguilds", H
         val allGuilds = objectMapper.createArrayNode()
         for (id in context.getPodIds()) {
             val base = context.melijnHostPattern.replace("{podId}", "$id")
-            val melijnGuilds = httpClient.post<String>("${base}/unverified/guilds") {
+            val melijnGuilds = context.post<String>("${base}/unverified/guilds") {
                 this.body = userInfo.idLong.toString()
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }.json()
+            }?.json()
 
             if (melijnGuilds is ArrayNode)
                 allGuilds.addAll(melijnGuilds)

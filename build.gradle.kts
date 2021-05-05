@@ -2,15 +2,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("application")
-    id("com.github.johnrengelman.shadow") version "6.1.0"
-    id("org.jetbrains.kotlin.jvm") version "1.4.31"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("org.jetbrains.kotlin.jvm") version "1.5.0"
 }
 
-application {
-    mainClassName = "me.melijn.siteapi.MelijnSiteKt"
-}
+application.mainClass.set("me.melijn.siteapi.MelijnSiteKt")
 group = "me.melijn.siteapi"
-version = "0.0.4"
+version = "1.0.0"
 
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_15
@@ -18,15 +16,16 @@ configure<JavaPluginConvention> {
 }
 
 repositories {
+    mavenCentral()
     jcenter()
     maven { url = uri("https://jitpack.io") }
-    mavenCentral()
 }
 
 val ktx = "1.4.3"
 val ktor = "1.5.4"
 val jackson = "2.12.3"
-val kotlin = "1.4.31"
+val kotlin = "1.5.0"
+
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$ktx")
