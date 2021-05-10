@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("application")
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("org.jetbrains.kotlin.jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.0"
 }
 
 application.mainClass.set("me.melijn.siteapi.MelijnSiteKt")
@@ -17,8 +17,6 @@ configure<JavaPluginConvention> {
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven { url = uri("https://jitpack.io") }
 }
 
 val ktx = "1.4.3"
