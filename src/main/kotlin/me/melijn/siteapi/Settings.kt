@@ -49,7 +49,7 @@ class Settings(
         }
 
         fun get(path: String): String {
-            val fixedPath = path.toUpperCase().replace(".", "_")
+            val fixedPath = path.uppercase().replace(".", "_")
             return dotenv[fixedPath] ?: throw IllegalStateException("missing env value: $fixedPath")
         }
 
