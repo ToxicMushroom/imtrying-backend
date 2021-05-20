@@ -19,7 +19,7 @@ repositories {
     mavenCentral()
 }
 
-val ktx = "1.4.3"
+val ktx = "1.5.0"
 val ktor = "1.5.4"
 val jackson = "2.12.3"
 val kotlin = "1.5.0"
