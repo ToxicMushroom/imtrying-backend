@@ -9,7 +9,7 @@ import me.melijn.siteapi.router.get
 
 class GetPublicStatsRoute : AbstractRoute("/publicStats") {
 
-    companion object{
+    companion object {
         const val CACHE_REFRESH_TIME = 1_000
         var lastCacheRefresh = 0L
         var cachedValue = ""
@@ -19,8 +19,12 @@ class GetPublicStatsRoute : AbstractRoute("/publicStats") {
         if (context.now - lastCacheRefresh > CACHE_REFRESH_TIME) {
             var statsSum: MelijnStat? = null
             for (id in context.getPodIds()) {
+                val stat = try {
+                    context.get<MelijnStat>("${context.getPodHostUrl(id)}/publicStats")
+                } catch (t: Throwable) {
+                    null
+                } ?: continue
 
-                val stat = context.get<MelijnStat>("${context.getPodHostUrl(id)}/publicStats") ?: continue
                 if (statsSum == null) statsSum = stat
                 else {
                     statsSum.bot.cpuUsage += stat.bot.cpuUsage
