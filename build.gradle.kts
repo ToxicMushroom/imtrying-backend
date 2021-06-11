@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("application")
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.10"
 }
 
 application.mainClass.set("me.melijn.siteapi.MelijnSiteKt")
@@ -20,9 +20,9 @@ repositories {
 }
 
 val ktx = "1.5.0"
-val ktor = "1.5.4"
+val ktor = "1.6.0"
 val jackson = "2.12.3"
-val kotlin = "1.5.0"
+val kotlin = "1.5.10"
 
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
