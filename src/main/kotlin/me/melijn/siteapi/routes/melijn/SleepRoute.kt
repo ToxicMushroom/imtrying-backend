@@ -6,6 +6,10 @@ import me.melijn.siteapi.router.get
 
 class SleepRoute : AbstractRoute("/sleep") {
 
+    init {
+        authorization = true
+    }
+
     override suspend fun execute(context: IRouteContext) {
         for (podId in 0 until context.podInfo.podCount) {
             val url = "${context.melijnHostPattern.replace("{podId}", "$podId")}/shutdown"
