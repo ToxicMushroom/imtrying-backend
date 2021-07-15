@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("application")
     id("com.github.johnrengelman.shadow") version "7.0.0"
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.21"
 }
 
 application.mainClass.set("me.melijn.siteapi.MelijnSiteKt")
@@ -19,10 +19,10 @@ repositories {
     mavenCentral()
 }
 
-val ktx = "1.4.3"
-val ktor = "1.5.4"
+val ktx = "1.5.1"
+val ktor = "1.6.1"
 val jackson = "2.12.3"
-val kotlin = "1.5.0"
+val kotlin = "1.5.21"
 
 dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
@@ -57,11 +57,11 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     // https://search.maven.org/artifact/com.zaxxer/HikariCP
-    implementation("com.zaxxer:HikariCP:4.0.3")
+    implementation("com.zaxxer:HikariCP:5.0.0")
 
     // implementation("com.github.husnjak:IGDB-API-JVM:0.7")
     // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
-    implementation("io.lettuce:lettuce-core:6.1.1.RELEASE")
+    implementation("io.lettuce:lettuce-core:6.1.4.RELEASE")
 
     // https://github.com/cdimascio/dotenv-kotlin
     implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
