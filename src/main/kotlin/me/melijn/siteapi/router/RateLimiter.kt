@@ -28,9 +28,13 @@ class RateLimiter(
         blackListThreshold: Int = 5
     ): Boolean {
         val call = context.call
-        val cfIp = call.request.header("cf-connecting-ip")
+        val cfConnectingIp = call.request.header("cf-connecting-ip")
+        val headerRequesterIp = if (context.settings.siteIps.contains(cfConnectingIp))
+            call.request.header("melijn-requester-ip")
+        else call.request.header("cf-connecting-ip")
+
         logger.info("req headers: " + call.request.headers.toMap())
-        val absoluteIp = cfIp ?: call.request.origin.remoteHost
+        val absoluteIp = headerRequesterIp ?: call.request.origin.remoteHost
         if (shouldBlackList && blackList.contains(absoluteIp)) {
             logger.warn("$absoluteIp is a blackListed ip and made a request")
             return true

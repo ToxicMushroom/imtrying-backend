@@ -8,7 +8,8 @@ class Settings(
     val discordOauth: DiscordOauth,
     val restServer: RestServer,
     val recaptcha: GoogleRecaptcha,
-    val melijnApi: MelijnApi
+    val melijnApi: MelijnApi,
+    val siteIps: List<String>
 ) {
 
     data class GoogleRecaptcha(
@@ -84,7 +85,8 @@ class Settings(
                 MelijnApi(
                     get("melijnapi.host.pattern"),
                     get("melijnapi.token")
-                )
+                ),
+                get("website.ips").takeIf { it.isNotBlank() }?.split(",") ?: emptyList()
             )
         }
     }
