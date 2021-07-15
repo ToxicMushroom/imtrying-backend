@@ -4,6 +4,7 @@ import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
+import io.ktor.util.*
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -28,6 +29,7 @@ class RateLimiter(
     ): Boolean {
         val call = context.call
         val cfIp = call.request.header("cf-connecting-ip")
+        logger.info("req headers: " + call.request.headers.toMap())
         val absoluteIp = cfIp ?: call.request.origin.remoteHost
         if (shouldBlackList && blackList.contains(absoluteIp)) {
             logger.warn("$absoluteIp is a blackListed ip and made a request")
