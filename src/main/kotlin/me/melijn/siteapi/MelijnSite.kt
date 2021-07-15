@@ -21,8 +21,8 @@ val httpClient = HttpClient(OkHttp) {
     }
     defaultRequest {
         this.timeout {
-            this.connectTimeoutMillis = 2000
-            this.requestTimeoutMillis = 2000
+            this.connectTimeoutMillis = 4000
+            this.requestTimeoutMillis = 4000
         }
     }
 }
