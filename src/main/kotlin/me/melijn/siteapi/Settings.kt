@@ -9,7 +9,8 @@ class Settings(
     val restServer: RestServer,
     val recaptcha: GoogleRecaptcha,
     val melijnApi: MelijnApi,
-    val siteIps: List<String>
+    val siteIps: List<String>,
+    val cfIpRanges: List<String>
 ) {
 
     data class GoogleRecaptcha(
@@ -18,6 +19,7 @@ class Settings(
 
     data class Redis(
         val host: String,
+        val password: String,
         val port: Int,
         val enabled: Boolean
     )
@@ -63,6 +65,7 @@ class Settings(
             return Settings(
                 Redis(
                     get("redis.host"),
+                    get("redis.password"),
                     getInt("redis.port"),
                     getBoolean("redis.enabled")
                 ),
@@ -86,7 +89,8 @@ class Settings(
                     get("melijnapi.host.pattern"),
                     get("melijnapi.token")
                 ),
-                get("website.ips").takeIf { it.isNotBlank() }?.split(",") ?: emptyList()
+                get("website.ips").takeIf { it.isNotBlank() }?.split(",") ?: emptyList(),
+                get("cf.ips").takeIf { it.isNotBlank() }?.split(",") ?: emptyList()
             )
         }
     }

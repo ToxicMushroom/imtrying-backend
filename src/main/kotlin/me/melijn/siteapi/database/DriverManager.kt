@@ -18,22 +18,31 @@ class DriverManager(redisSettings: Settings.Redis) {
     init {
         if (redisSettings.enabled) {
             logger.info("Connecting to redis..")
-            connectRedis(redisSettings.host, redisSettings.port)
+            connectRedis(redisSettings.host, redisSettings.port, redisSettings.password)
         }
     }
 
-    private fun connectRedis(host: String, port: Int) {
-        val uri = RedisURI.builder()
+
+    private fun connectRedis(host: String, port: Int, password: String) {
+        val uriBuilder = RedisURI.builder()
             .withHost(host)
             .withPort(port)
-            .build()
 
-        val redisClient = RedisClient.create(uri)
+        val uri = if (password.isNotBlank()){
+            uriBuilder.withPassword(password.toCharArray())
+        } else {
+            uriBuilder
+        }.build()
+
+        val redisClient = RedisClient
+            .create(uri)
+
         this.redisClient = redisClient
 
         try {
             redisConnection = redisClient.connect()
             logger.info("Connected to redis")
+
         } catch (e: Throwable) {
             TaskManager.async {
                 logger.warn("Retrying to connect to redis..")
