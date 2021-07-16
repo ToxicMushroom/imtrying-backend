@@ -35,6 +35,8 @@ class RateLimiter(
 
         val call = context.call
         val cfConnectingIp = call.request.header("cf-connecting-ip")
+        logger.info("--New Req--" + context.call.request.headers.toMap())
+        logger.info(" Req Headers: " + context.call.request.headers.toMap())
         val headerRequesterIp = if (cfConnectingIp != null && context.settings.siteIps.contains(cfConnectingIp))
         // Check if this is an authentic cf server that is setting the header
             if (context.settings.cfIpRanges.any { IpAddressMatcher(it).matches(requesterIP) })
@@ -48,7 +50,7 @@ class RateLimiter(
             call.request.header("melijn-requester-ip")
         // Assume cf and no melijn requester ip was supplied
         else call.request.header("cf-connecting-ip")
-        logger.info("req headers: " + context.call.request.headers.toMap())
+
 
         val absoluteIp = headerRequesterIp ?: requesterIP
         if (shouldBlackList && blackList.contains(absoluteIp)) {
@@ -87,7 +89,7 @@ class RateLimiter(
                 }
                 reqInfo.requestMap.add(context.now)
                 reqInfo.lastTime = context.now
-                logger.warn(absoluteIp + ": " + call.request.uri + " (Ratelimited)")
+                logger.warn(" " + absoluteIp + ": " + call.request.uri + " (Ratelimited)")
                 return true
             }
         }
@@ -97,7 +99,7 @@ class RateLimiter(
         reqInfo.previousResponse = true
 
         requestMap[absoluteIp] = reqInfo
-        if (shouldLog) logger.info("$absoluteIp: ${context.request.httpMethod.value } ${call.request.uri}")
+        if (shouldLog) logger.info(" $absoluteIp: ${context.request.httpMethod.value } ${call.request.uri}")
         return false
     }
 
