@@ -1,5 +1,6 @@
 package me.melijn.siteapi.router
 
+import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -39,17 +40,16 @@ class RateLimiter(
         logger.info("┃ Req Headers: " + context.call.request.headers.toMap())
         val headerRequesterIp = if (cfConnectingIp != null && context.settings.siteIps.contains(cfConnectingIp))
         // Check if this is an authentic cf server that is setting the header
-            if (context.settings.cfIpRanges.any { IpAddressMatcher(it).matches(requesterIP) })
-                call.request.header("melijn-requester-ip")
-            else {
-                logger.warn("$requesterIP IS FAKING melijn-requester-ip AND CF-connecting-IP HEADERS, OR THIS IS A NEW CF SERVER")
+            if (isCFIp(context, requesterIP)) {
+                getRequestIpFromMelijnHeader(call, context)
+            } else {
+                logger.warn("┃ $requesterIP IS FAKING melijn-requester-ip AND CF-connecting-IP HEADERS, OR THIS IS A NEW CF SERVER")
                 null
             }
         // Not CF, but raw request from site server (useful for local, or no cf setups)
-        else if (cfConnectingIp == null && context.settings.siteIps.contains(requesterIP))
-            call.request.header("melijn-requester-ip")
-        // Assume cf and no melijn requester ip was supplied
-        else call.request.header("cf-connecting-ip")
+        else if (cfConnectingIp == null && context.settings.siteIps.contains(requesterIP)) {
+            getRequestIpFromMelijnHeader(call, context)
+        } else call.request.header("cf-connecting-ip")
 
 
         val absoluteIp = headerRequesterIp ?: requesterIP
@@ -99,9 +99,28 @@ class RateLimiter(
         reqInfo.previousResponse = true
 
         requestMap[absoluteIp] = reqInfo
-        if (shouldLog) logger.info("┃ $absoluteIp: ${context.request.httpMethod.value } ${call.request.uri}")
+        if (shouldLog) logger.info("┃ $absoluteIp: ${context.request.httpMethod.value} ${call.request.uri}")
         return false
     }
+
+    private fun getRequestIpFromMelijnHeader(
+        call: ApplicationCall,
+        context: IRouteContext
+    ): String? {
+        val phase1 = call.request.header("melijn-x-real-ip")
+        return if (phase1 != null && isCFIp(context, phase1)) {
+            call.request.header("melijn-requester-ip")
+        } else if (phase1 != null) {
+            logger.warn("┃ Someone made a direct request to traefik, (no cf). Using his ip")
+            call.request.header("melijn-x-real-ip")
+        } else {
+            logger.error("┃ Request from website but no ip headers were supplied!")
+            null
+        }
+    }
+
+    private fun isCFIp(context: IRouteContext, requesterIP: String) =
+        context.settings.cfIpRanges.any { IpAddressMatcher(it).matches(requesterIP) }
 
     @OptIn(EngineAPI::class)
     private fun getAccurateRequesterIP(context: IRouteContext) = when (context.call) {
