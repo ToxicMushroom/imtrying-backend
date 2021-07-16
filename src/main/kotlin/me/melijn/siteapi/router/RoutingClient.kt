@@ -2,6 +2,7 @@ package me.melijn.siteapi.router
 
 import io.ktor.application.*
 import io.ktor.http.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
 import me.melijn.siteapi.Container
@@ -89,7 +90,25 @@ class RoutingClient(private val container: Container) {
                 HttpMethod.Head -> routing.head(route.route, body)
                 HttpMethod.Options -> routing.options(route.route, body)
             }
+            if (routes.none { it.route == route.route && it.httpMethod == HttpMethod.Options }) {
+                val corsRoute = object : AbstractRoute(route.route, HttpMethod.Options) {
+                    override suspend fun execute(context: IRouteContext) {
+                        val methods = routes.filter {
+                            it.route == route.route
+                        }.joinToString { it.httpMethod.value }
+                        context.response.header("Access-Control-Allow-Methods", methods)
+                        context.response.header("Access-Control-Allow-Headers", "*")
+                        context.response.header("Access-Control-Max-Age", "86400")
+                        context.reply("")
+                    }
+                }
+
+                val corsBody: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit = {
+                    val context = RouteContext(this.context, container)
+                    corsRoute.run(context)
+                }
+                routing.options(route.route, corsBody)
+            }
         }
     }
-
 }

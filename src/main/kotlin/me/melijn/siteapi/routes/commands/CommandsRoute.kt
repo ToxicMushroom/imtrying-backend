@@ -24,5 +24,4 @@ class CommandsRoute : AbstractRoute("/commands") {
         context.response.header("cache-control", "max-age=3600")
         context.replyJson(cachedValue)
     }
-
 }

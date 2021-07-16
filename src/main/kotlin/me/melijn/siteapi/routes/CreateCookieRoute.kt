@@ -52,7 +52,11 @@ class CreateCookieRoute : AbstractRoute("/cookie/encrypt/code", HttpMethod.Post)
                 }
             }.json()
 
-            val token = tokenResponse.get("access_token").asText()
+            val token = tokenResponse.get("access_token")?.asText()
+            if (token == null) {
+                context.replyError(HttpStatusCode.BadRequest, "Unsuccessful login, contact support if this keeps occurring")
+                return
+            }
             val refreshToken = tokenResponse.get("refresh_token").asText()
             val lifeTime = tokenResponse.get("expires_in").asLong()
 

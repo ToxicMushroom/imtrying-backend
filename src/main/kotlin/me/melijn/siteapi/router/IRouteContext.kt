@@ -40,6 +40,7 @@ interface IRouteContext {
         contentType: ContentType = ContentType.Text.Plain,
         statusCode: HttpStatusCode = HttpStatusCode.OK
     ) {
+        response.header("Access-Control-Allow-Origin", "*")
         call.respondText(content, contentType, statusCode)
     }
 
