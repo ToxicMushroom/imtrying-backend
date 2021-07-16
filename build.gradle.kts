@@ -25,6 +25,9 @@ val jackson = "2.12.3"
 val kotlin = "1.5.21"
 
 dependencies {
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-web
+    implementation("org.springframework.security:spring-security-web:5.5.1")
+
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$ktx")
 
