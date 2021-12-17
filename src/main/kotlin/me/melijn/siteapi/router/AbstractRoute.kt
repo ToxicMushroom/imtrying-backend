@@ -16,7 +16,6 @@ abstract class AbstractRoute(val route: String, val httpMethod: HttpMethod = Htt
 
         if (rateLimiter?.incrementAndGetIsRatelimited(context) == true) return
 
-        logger.warn(context.headers.toString())
         // AuthorizationCheck
         if (authorization && context.headers["authorization"] != context.settings.restServer.authorization) {
             logger.info("${context.headers["authorization"]} vs ${context.settings.restServer.authorization}")

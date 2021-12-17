@@ -26,14 +26,17 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
             val node = objectMapper.readValue<Map<Int, Int>>(tree["errorCounts"].asText())
             val pathNode = objectMapper.readValue<Map<String, Map<Int, Int>>>(tree["pathErrorCounts"].asText())
             node.entries.forEach { botCounts[it.key] = (botCounts[it.key] ?: 0) + it.value }
-            pathNode.entries.forEach { val current = botRouteCounts[it.key] ?: mutableMapOf()
+            pathNode.entries.forEach {
+                val current = botRouteCounts[it.key] ?: mutableMapOf()
                 it.value.forEach { it2 -> current[it2.key] = (current[it2.key] ?: 0) + it2.value }
                 botRouteCounts[it.key] = current
             }
         }
-        context.replyJson {
-            put("botCounts", objectMapper.writeValueAsString(botCounts))
-            put("botRouteCounts", objectMapper.writeValueAsString(botRouteCounts))
-        }
+        context.replyJson(
+            objectMapper.createObjectNode()
+                .put("botCounts", objectMapper.writeValueAsString(botCounts))
+                .put("botRouteCounts", objectMapper.writeValueAsString(botRouteCounts))
+                .toString()
+        )
     }
 }
