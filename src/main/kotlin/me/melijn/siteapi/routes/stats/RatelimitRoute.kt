@@ -5,6 +5,7 @@ import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.get
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.set
 
@@ -14,7 +15,7 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
         authorization = true
     }
 
-    val logger = LoggerFactory.getLogger(this::class.java)
+    val logger: Logger = LoggerFactory.getLogger(RatelimitRoute::class.java)
     override suspend fun execute(context: IRouteContext) {
         val botCounts = mutableMapOf<Int, Int>()
         val botRouteCounts = mutableMapOf<String, MutableMap<Int, Int>>()
@@ -40,8 +41,6 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
             .toString()
 
         logger.info("ratelimit route returning: $returning")
-        context.replyJson(
-            returning
-        )
+        context.replyJson(returning)
     }
 }
