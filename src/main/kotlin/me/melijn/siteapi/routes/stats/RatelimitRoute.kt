@@ -14,6 +14,7 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
         authorization = true
     }
 
+    val logger = LoggerFactory.getLogger(this::class.java)
     override suspend fun execute(context: IRouteContext) {
         val botCounts = mutableMapOf<Int, Int>()
         val botRouteCounts = mutableMapOf<String, MutableMap<Int, Int>>()
@@ -37,9 +38,10 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
             .put("botCounts", objectMapper.writeValueAsString(botCounts))
             .put("botRouteCounts", objectMapper.writeValueAsString(botRouteCounts))
             .toString()
+
+        logger.info("ratelimit route returning: $returning")
         context.replyJson(
             returning
         )
-        LoggerFactory.getLogger(this::class.java).info("ratelimit route returning: $returning")
     }
 }
