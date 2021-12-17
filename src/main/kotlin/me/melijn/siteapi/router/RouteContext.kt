@@ -28,6 +28,6 @@ class RouteContext(
     override val now = System.currentTimeMillis()
 
     override suspend fun init() {
-        body= call.receiveText()
+        body = call.receiveText()
     }
 }
