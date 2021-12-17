@@ -21,7 +21,7 @@ class RouteContext(
     override val request = call.request
     override var body: String = ""
     override val path: String = request.path()
-    override val headers: Map<String, String> = request.headers.toMap().map { it.key to it.value.first() }.toMap()
+    override val headers: Map<String, String> = request.headers.toMap().map { it.key.lowercase() to it.value.first() }.toMap()
     override val queryParams: Map<String, String> = request.queryParameters.toMap().map { it.key to it.value.first() }.toMap()
     override val contentType: ContentType = request.contentType()
 
