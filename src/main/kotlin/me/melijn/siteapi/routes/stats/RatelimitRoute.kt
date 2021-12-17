@@ -5,6 +5,7 @@ import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.get
+import org.slf4j.LoggerFactory
 import kotlin.collections.set
 
 class RatelimitRoute : AbstractRoute("/ratelimit") {
@@ -32,11 +33,13 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
                 botRouteCounts[it.key] = current
             }
         }
+        val returning = objectMapper.createObjectNode()
+            .put("botCounts", objectMapper.writeValueAsString(botCounts))
+            .put("botRouteCounts", objectMapper.writeValueAsString(botRouteCounts))
+            .toString()
         context.replyJson(
-            objectMapper.createObjectNode()
-                .put("botCounts", objectMapper.writeValueAsString(botCounts))
-                .put("botRouteCounts", objectMapper.writeValueAsString(botRouteCounts))
-                .toString()
+            returning
         )
+        LoggerFactory.getLogger(this::class.java).info("ratelimit route returning: $returning")
     }
 }
