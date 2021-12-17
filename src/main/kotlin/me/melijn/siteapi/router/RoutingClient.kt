@@ -20,6 +20,7 @@ import me.melijn.siteapi.routes.general.GetLoginInfoRoute
 import me.melijn.siteapi.routes.melijn.SleepRoute
 import me.melijn.siteapi.routes.stats.EventsRoute
 import me.melijn.siteapi.routes.stats.GetPublicStatsRoute
+import me.melijn.siteapi.routes.stats.RatelimitRoute
 import me.melijn.siteapi.routes.verify.GetVerifiableGuildsRoute
 import me.melijn.siteapi.routes.verify.VerifyGuildRoute
 
@@ -31,6 +32,7 @@ class RoutingClient(private val container: Container) {
         CommandsRoute(),
         CommandMapRoute(),
         GetPublicStatsRoute(),
+        RatelimitRoute(),
         EventsRoute(),
 
         SleepRoute(),

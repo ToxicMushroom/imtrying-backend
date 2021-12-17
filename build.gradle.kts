@@ -2,15 +2,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("application")
-    id("com.github.johnrengelman.shadow") version "7.0.0"
-    kotlin("jvm") version "1.5.21"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
+    kotlin("jvm") version "1.6.10"
 }
 
 application.mainClass.set("me.melijn.siteapi.MelijnSiteKt")
 group = "me.melijn.siteapi"
 version = "1.0.0"
 
-configure<JavaPluginConvention> {
+configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_15
     targetCompatibility = JavaVersion.VERSION_15
 }
@@ -19,10 +19,10 @@ repositories {
     mavenCentral()
 }
 
-val ktx = "1.5.1"
-val ktor = "1.6.1"
-val jackson = "2.12.3"
-val kotlin = "1.5.21"
+val ktx = "1.5.2-native-mt"
+val ktor = "1.6.7"
+val jackson = "2.13.0"
+val kotlin = "1.6.0"
 
 dependencies {
     // https://mvnrepository.com/artifact/org.springframework.security/spring-security-web
@@ -35,7 +35,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$ktx")
 
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:1.2.8")
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
     implementation("com.fasterxml.jackson.core:jackson-core:$jackson")
@@ -64,7 +64,7 @@ dependencies {
 
     // implementation("com.github.husnjak:IGDB-API-JVM:0.7")
     // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
-    implementation("io.lettuce:lettuce-core:6.1.4.RELEASE")
+    implementation("io.lettuce:lettuce-core:6.1.5.RELEASE")
 
     // https://github.com/cdimascio/dotenv-kotlin
     implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
