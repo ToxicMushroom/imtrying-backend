@@ -5,10 +5,6 @@ import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.get
-import kotlin.collections.Map
-import kotlin.collections.MutableMap
-import kotlin.collections.forEach
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 class RatelimitRoute : AbstractRoute("/ratelimit") {
