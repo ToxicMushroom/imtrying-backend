@@ -16,6 +16,9 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
     }
 
     val logger: Logger = LoggerFactory.getLogger(RatelimitRoute::class.java)
+    var prevMap:Map<String, Map<Int, Int>> = emptyMap()
+    var prevCodes: Set<Int> = mutableSetOf()
+
     override suspend fun execute(context: IRouteContext) {
         val botCounts = mutableMapOf<Int, Int>()
         val botRouteCounts = mutableMapOf<String, MutableMap<Int, Int>>()
@@ -26,8 +29,19 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
                 null
             } ?: continue
             val tree = objectMapper.readTree(info)
-            val node = objectMapper.readValue<Map<Int, Int>>(tree["errorCounts"].asText())
-            val pathNode = objectMapper.readValue<Map<String, Map<Int, Int>>>(tree["pathErrorCounts"].asText())
+            val node = objectMapper.readValue<Map<Int, Int>>(tree["errorCounts"].asText()).toMutableMap()
+            prevCodes.forEach { c -> node[c] = node[c] ?: 0 }
+            prevCodes = node.filter { it.value != 0 }.map { it.key }.toSet()
+
+            // set last posted data points back to 0. makes graphs look better
+            val pathNode = objectMapper.readValue<Map<String, Map<Int, Int>>>(tree["pathErrorCounts"].asText()).toMutableMap()
+            prevMap.forEach { (path, codeCounts) ->
+                val map = HashMap(pathNode[path] ?: emptyMap())
+                codeCounts.forEach { (code, zero) -> map[code] = map.getOrDefault(code, zero) }
+                pathNode[path] = map
+            }
+            prevMap = pathNode.mapValues { pathEntry -> pathEntry.value.filter { it.value != 0 }.mapValues { 0 } }
+
             node.entries.forEach { botCounts[it.key] = (botCounts[it.key] ?: 0) + it.value }
             pathNode.entries.forEach {
                 val current = botRouteCounts[it.key] ?: mutableMapOf()
