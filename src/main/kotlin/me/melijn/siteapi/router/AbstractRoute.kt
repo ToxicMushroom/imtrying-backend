@@ -9,7 +9,7 @@ abstract class AbstractRoute(val route: String, val httpMethod: HttpMethod = Htt
     var authorization: Boolean = false
     var rateLimiter: RateLimiter? = null
     var requiredParameters = emptyArray<String>()
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    val logger = LoggerFactory.getLogger(this::class.java)
 
     suspend fun run(context: IRouteContext) {
         context.init()

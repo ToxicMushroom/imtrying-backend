@@ -54,6 +54,7 @@ class CreateCookieRoute : AbstractRoute("/cookie/encrypt/code", HttpMethod.Post)
 
             val token = tokenResponse.get("access_token")?.asText()
             if (token == null) {
+                logger.info("unsuccessful login, discord response: " + tokenResponse.toPrettyString())
                 context.replyError(HttpStatusCode.BadRequest, "Unsuccessful login, contact support if this keeps occurring")
                 return
             }
