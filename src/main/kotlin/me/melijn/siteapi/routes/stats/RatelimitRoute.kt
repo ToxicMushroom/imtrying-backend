@@ -15,7 +15,6 @@ class RatelimitRoute : AbstractRoute("/ratelimit") {
         authorization = true
     }
 
-    val logger: Logger = LoggerFactory.getLogger(RatelimitRoute::class.java)
     var prevMap:Map<String, Map<Int, Int>> = emptyMap()
     var prevCodes: Set<Int> = mutableSetOf()
 
