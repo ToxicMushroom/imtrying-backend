@@ -7,14 +7,14 @@ import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.get
 
-class IsInGuildRoute : AbstractRoute("/isinguild") {
+class IsInGuildRoute : AbstractRoute("/isinguild", HttpMethod.Post) {
 
     init {
         authorization = true
     }
 
     override suspend fun execute(context: IRouteContext) {
-        val guildId = context.getQueryParm("guildId").toLongOrNull()
+        val guildId = try { objectMapper.readTree(context.body).get("guildId").asLong() } catch (t: Throwable) { null }
         if (guildId == null) {
             context.reply("invalid guildId", statusCode = HttpStatusCode.BadRequest)
             return
