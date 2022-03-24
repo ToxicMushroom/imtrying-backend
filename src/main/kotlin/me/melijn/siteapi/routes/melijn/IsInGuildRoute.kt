@@ -7,7 +7,7 @@ import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.router.get
 
-class IsInGuildRoute : AbstractRoute("/isinguild/{guildId}") {
+class IsInGuildRoute : AbstractRoute("/isinguild") {
 
     init {
         authorization = true
@@ -21,9 +21,8 @@ class IsInGuildRoute : AbstractRoute("/isinguild/{guildId}") {
         }
 
         val podId = ((guildId shr 22) % context.podInfo.shardCount) / context.podInfo.shardsPerPod
-
-
         val url = "${context.melijnHostPattern.replace("{podId}", "$podId")}/guild/${guildId}"
+
         try {
             val res = context.get<String>(url) {
                 header("Authorization", context.settings.melijnApi.token)
