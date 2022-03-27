@@ -20,7 +20,7 @@ repositories {
 }
 
 val ktx = "1.6.0-native-mt"
-val ktor = "1.6.7"
+val ktor = "1.6.8"
 val jackson = "2.13.2"
 val kotlin = "1.6.10"
 
@@ -64,7 +64,7 @@ dependencies {
 
     // implementation("com.github.husnjak:IGDB-API-JVM:0.7")
     // https://mvnrepository.com/artifact/io.lettuce/lettuce-core
-    implementation("io.lettuce:lettuce-core:6.1.6.RELEASE")
+    implementation("io.lettuce:lettuce-core:6.1.8.RELEASE")
 
     // https://github.com/cdimascio/dotenv-kotlin
     implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
