@@ -1,6 +1,6 @@
 package me.melijn.siteapi.routes.stats
 
-import io.ktor.response.*
+import io.ktor.server.response.header
 import me.melijn.siteapi.models.MelijnStat
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute

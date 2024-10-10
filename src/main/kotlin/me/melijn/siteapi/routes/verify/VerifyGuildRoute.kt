@@ -1,6 +1,7 @@
 package me.melijn.siteapi.routes.verify
 
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.objectMapper
@@ -23,17 +24,17 @@ class VerifyGuildRoute : AbstractRoute("/verifyguild", HttpMethod.Post) {
         val guildId = body.get("guild")?.asText()?.toLongOrNull() ?: return
         val userInfo = getUserInfo(context) ?: return
 
-        httpClient.post<String>("https://www.google.com/recaptcha/api/siteverify") {
+        httpClient.post("https://www.google.com/recaptcha/api/siteverify") {
             parameter("secret", context.settings.recaptcha.secret)
             parameter("response", recaptcha)
-        }
+        }.bodyAsText()
 
         // Includes info like: is melijn a member, does the user have permission to the dashboard
         val success = context.post<String>("${context.getMelijnHost(guildId)}/unverified/verify") {
-            this.body = objectMapper.createObjectNode()
+            setBody(objectMapper.createObjectNode()
                 .put("userId", userInfo.idLong.toString())
                 .put("guildId", guildId.toString())
-                .toString()
+                .toString())
             headers {
                 append("Authorization", context.melijnApiKey)
             }

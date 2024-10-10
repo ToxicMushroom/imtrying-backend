@@ -5,25 +5,31 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 
 val objectMapper: ObjectMapper = jacksonObjectMapper()
     .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
 val httpClient = HttpClient(OkHttp) {
     expectSuccess = false
-    install(JsonFeature) {
-        serializer = JacksonSerializer(objectMapper)
+    install(ContentNegotiation) {
+        json(Json {
+            prettyPrint = true
+            isLenient = true
+            ignoreUnknownKeys = true
+        })
     }
+
     install(UserAgent) {
         agent = "Melijn Backend / 1.0.0 Website backend"
     }
-    defaultRequest {
-        this.timeout {
-            this.connectTimeoutMillis = 4000
-            this.requestTimeoutMillis = 4000
-        }
+    install(HttpTimeout) {
+        requestTimeoutMillis = 4000
+        connectTimeoutMillis = 4000
     }
 }
 

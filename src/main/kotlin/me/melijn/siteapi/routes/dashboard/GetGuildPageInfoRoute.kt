@@ -1,11 +1,10 @@
 package me.melijn.siteapi.routes.dashboard
 
-import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.http.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.GuildsInfo
-import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
 import me.melijn.siteapi.utils.getBodyNMessage
@@ -23,14 +22,13 @@ class GetGuildPageInfoRoute : AbstractRoute("/cookie/decrypt/guild", HttpMethod.
         val guildInfoN = daoManager.guildWrapper.getGuildInfo(jwt, guildId)
         val guildInfo = if (guildInfoN == null) {
             // Includes info like: is melijn a member, does the user have permission to the dashboard
-            val melijnGuild = httpClient.post<String>("${context.getMelijnHost(guildId)}/guild/$guildId") {
-                this.body = userInfo.idLong.toString()
+            val guildInf = httpClient.post("${context.getMelijnHost(guildId)}/guild/$guildId") {
+                setBody(userInfo.idLong.toString())
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }
+            }.body<GuildsInfo.GuildInfo>()
 
-            val guildInf = objectMapper.readValue<GuildsInfo.GuildInfo>(melijnGuild)
             daoManager.guildWrapper.setGuildInfo(jwt, guildId, guildInf)
             guildInf
         } else {

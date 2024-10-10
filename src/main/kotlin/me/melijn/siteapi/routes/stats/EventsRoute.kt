@@ -2,8 +2,7 @@ package me.melijn.siteapi.routes.stats
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.request.*
-import io.ktor.response.*
-import me.melijn.siteapi.httpClient
+import io.ktor.server.response.header
 import me.melijn.siteapi.objectMapper
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext

@@ -2,6 +2,7 @@ package me.melijn.siteapi.routes.dashboard.guild
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.objectMapper
@@ -27,12 +28,12 @@ class LoggingRoute {
             node.set<JsonNode>("settings", settings)
 
             val url = "${context.getMelijnHost(guildId)}/setsettings/logging/$guildId"
-            val forward = httpClient.post<String>(url) {
-                this.body = node.toString()
+            val forward = httpClient.post(url) {
+                setBody(node.toString())
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }
+            }.bodyAsText()
 
             context.replyJson(forward)
         }
@@ -44,12 +45,12 @@ class LoggingRoute {
             val userId = getUserInfo(context)?.idLong ?: return
 
             val url = "${context.getMelijnHost(guildId)}/getsettings/logging/$guildId"
-            val response = httpClient.post<String>(url) {
-                this.body = "$userId"
+            val response = httpClient.post(url) {
+                setBody("$userId")
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }
+            }.bodyAsText()
 
             context.replyJson(response)
         }

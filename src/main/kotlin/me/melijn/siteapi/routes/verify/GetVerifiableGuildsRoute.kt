@@ -24,7 +24,7 @@ class GetVerifiableGuildsRoute : AbstractRoute("/cookie/decrypt/verifyguilds", H
         for (id in context.getPodIds()) {
             val base = context.melijnHostPattern.replace("{podId}", "$id")
             val melijnGuilds = context.post<String>("${base}/unverified/guilds") {
-                this.body = userInfo.idLong.toString()
+                setBody(userInfo.idLong.toString())
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }

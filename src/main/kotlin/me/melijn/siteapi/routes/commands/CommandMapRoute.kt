@@ -1,7 +1,8 @@
 package me.melijn.siteapi.routes.commands
 
 import io.ktor.client.request.*
-import io.ktor.response.*
+import io.ktor.client.statement.bodyAsText
+import io.ktor.server.response.header
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.router.AbstractRoute
 import me.melijn.siteapi.router.IRouteContext
@@ -16,7 +17,7 @@ class CommandMapRoute : AbstractRoute("/commandMap") {
 
     override suspend fun execute(context: IRouteContext) {
         if (context.now - lastCacheRefresh > CACHE_REFRESH_TIME) {
-            val json = httpClient.get<String>("${context.getRandomHost()}/commandMap")
+            val json = httpClient.get("${context.getRandomHost()}/commandMap").bodyAsText()
             cachedValue = json
             lastCacheRefresh = context.now
         }

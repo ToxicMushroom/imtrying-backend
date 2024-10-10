@@ -1,6 +1,7 @@
 package me.melijn.siteapi.models
 
-import io.ktor.application.*
+
+import io.ktor.server.application.ApplicationCall
 import kotlin.random.Random
 
 data class RequestContext(

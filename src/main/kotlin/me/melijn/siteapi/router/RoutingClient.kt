@@ -1,9 +1,19 @@
 package me.melijn.siteapi.router
 
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.response.header
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.head
+import io.ktor.server.routing.options
+import io.ktor.server.routing.patch
+import io.ktor.server.routing.post
+import io.ktor.server.routing.put
+import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.*
 import me.melijn.siteapi.Container
 import me.melijn.siteapi.routes.CreateCookieRoute

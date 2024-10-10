@@ -2,6 +2,7 @@ package me.melijn.siteapi
 
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
+import io.ktor.client.call.body
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import me.melijn.siteapi.database.DaoManager
@@ -23,7 +24,7 @@ class Container {
         runBlocking {
             try {
                 val hostPod0 = settings.melijnApi.host.replace("{podId}", "0")
-                httpClient.get("$hostPod0/podinfo")
+                httpClient.get("$hostPod0/podinfo").body()
             } catch (t: Throwable) {
                 t.printStackTrace()
                 exitProcess(404)

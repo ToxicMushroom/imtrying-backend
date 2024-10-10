@@ -1,10 +1,15 @@
 package me.melijn.siteapi.routes
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.impl.DefaultJwtBuilder
 import io.jsonwebtoken.security.Keys
+import io.ktor.client.call.body
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.SessionInfo
 import me.melijn.siteapi.models.UserInfo
@@ -18,6 +23,25 @@ import me.melijn.siteapi.utils.getSafeString
 import me.melijn.siteapi.utils.json
 import java.nio.ByteBuffer
 import kotlin.random.Random
+
+@Serializable
+data class Oauth2TokenResp(
+    @JsonProperty("access_token")
+    val accessToken: String,
+    @JsonProperty("refresh_token")
+    val refreshToken: String,
+    @JsonProperty("expires_in")
+    val expiresIn: Long,
+    val scope: String,
+)
+
+@Serializable
+data class Oauth2UserResp(
+    val avatar: String,
+    val username: String,
+    val discriminator: String,
+    val id: Long,
+)
 
 class CreateCookieRoute : AbstractRoute("/cookie/encrypt/code", HttpMethod.Post) {
 
@@ -45,23 +69,18 @@ class CreateCookieRoute : AbstractRoute("/cookie/encrypt/code", HttpMethod.Post)
 
 
         try {
-            val tokenResponse = httpClient.post<String>("${context.discordApi}/oauth2/token") {
-                this.body = encodedUrlParams
+            val tokenResponse = httpClient.post("${context.discordApi}/oauth2/token") {
+                setBody(encodedUrlParams)
                 headers {
                     append("Content-Type", "application/x-www-form-urlencoded")
                 }
-            }.json()
+            }.body<Oauth2TokenResp>()
 
-            val token = tokenResponse.get("access_token")?.asText()
-            if (token == null) {
-                logger.info("unsuccessful login, discord response: " + tokenResponse.toPrettyString())
-                context.replyError(HttpStatusCode.BadRequest, "Unsuccessful login, contact support if this keeps occurring")
-                return
-            }
-            val refreshToken = tokenResponse.get("refresh_token").asText()
-            val lifeTime = tokenResponse.get("expires_in").asLong()
+            val token = tokenResponse.accessToken
+            val refreshToken = tokenResponse.refreshToken
+            val lifeTime = tokenResponse.expiresIn
+            val scope = tokenResponse.scope
 
-            val scope = tokenResponse.get("scope").asText()
             val required = listOf("identify", "guilds")
             if (required.any { !scope.contains(it) }) {
                 context.replyError(
@@ -72,16 +91,16 @@ class CreateCookieRoute : AbstractRoute("/cookie/encrypt/code", HttpMethod.Post)
                 return
             }
 
-            val user = httpClient.get<String>("${context.discordApi}/users/@me") {
-                this.headers {
+            val user = httpClient.get("${context.discordApi}/users/@me") {
+                headers {
                     append("Authorization", "Bearer $token")
                 }
-            }.json()
+            }.body<Oauth2UserResp>()
 
-            val avatar = user.get("avatar").asText()
-            val userName = user.get("username").asText()
-            val discriminator = user.get("discriminator").asText()
-            val userId = user.get("id").asLong()
+            val avatar = user.avatar
+            val userName = user.username
+            val discriminator = user.discriminator
+            val userId = user.id
             val tag = "$userName#$discriminator"
 
             val key = Keys.hmacShaKeyFor(context.settings.restServer.jwtKey)

@@ -2,6 +2,7 @@ package me.melijn.siteapi.routes.general
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.models.GuildsInfo
@@ -57,23 +58,23 @@ class GetLoginGuildsRoute : AbstractRoute("/cookie/decrypt/guilds", HttpMethod.P
         val cached = guildsWrapper.getGuildsInfo(jwt)
         if (cached != null) return cached
 
-        val partialGuilds = httpClient.get<String>("${context.discordApi}/users/@me/guilds") {
+        val partialGuilds = httpClient.get("${context.discordApi}/users/@me/guilds") {
             headers {
                 append("Authorization", "Bearer $oauthToken")
             }
-        }.json()
+        }.bodyAsText()
 
 
         val list = mutableListOf<GuildsInfo.GuildInfo>()
         for (id in context.getPodIds()) {
             // Includes info like: is melijn a member, does the user have permission to the dashboard
             val base = context.melijnHostPattern.replace("{podId}", "$id")
-            val melijnGuilds = httpClient.post<String>("$base/upgradeGuilds") {
-                this.body = partialGuilds.toString()
+            val melijnGuilds = httpClient.post("$base/upgradeGuilds") {
+                setBody(partialGuilds)
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }
+            }.bodyAsText()
 
             val subList = try { objectMapper.readValue<List<GuildsInfo.GuildInfo>>(melijnGuilds) } catch (t: Throwable) { null }
             subList?.let { list.addAll(it) }

@@ -1,12 +1,14 @@
 package me.melijn.siteapi.router
 
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.server.engine.*
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.netty.*
+import io.ktor.server.request.header
+import io.ktor.server.request.host
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.uri
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.RoutingApplicationCall
 import io.ktor.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.security.web.util.matcher.IpAddressMatcher
@@ -122,7 +124,6 @@ class RateLimiter(
     private fun isCFIp(context: IRouteContext, requesterIP: String) =
         context.settings.cfIpRanges.any { IpAddressMatcher(it).matches(requesterIP) }
 
-    @OptIn(EngineAPI::class)
     private fun getAccurateRequesterIP(context: IRouteContext) = when (context.call) {
         is NettyApplicationCall -> {
             val call = context.call as NettyApplicationCall

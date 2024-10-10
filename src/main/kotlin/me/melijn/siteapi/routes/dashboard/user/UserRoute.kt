@@ -1,7 +1,9 @@
 package me.melijn.siteapi.routes.dashboard.user
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.ktor.client.call.body
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import me.melijn.siteapi.httpClient
 import me.melijn.siteapi.objectMapper
@@ -23,12 +25,12 @@ class UserRoute {
 
             // Includes info like: does the user have premium
             val url = "${context.getRandomHost()}/postsettings/user/$userId"
-            val response = httpClient.post<String>(url) {
-                this.body = node
+            val response = httpClient.post(url) {
+                setBody(node)
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }
+            }.bodyAsText()
 
             context.replyJson(response)
         }
@@ -40,11 +42,11 @@ class UserRoute {
             val userId = getUserInfo(context)?.idLong ?: return
             val url = "${context.getRandomHost()}/getsettings/user/$userId"
 
-            val userSettings = httpClient.post<String>(url) {
+            val userSettings = httpClient.post(url) {
                 headers {
                     append("Authorization", context.melijnApiKey)
                 }
-            }
+            }.bodyAsText()
 
             context.replyJson(userSettings)
         }

@@ -1,11 +1,14 @@
 package me.melijn.siteapi.router
 
 import com.fasterxml.jackson.databind.node.ObjectNode
-import io.ktor.application.*
+import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.ApplicationRequest
+import io.ktor.server.response.ApplicationResponse
+import io.ktor.server.response.header
+import io.ktor.server.response.respondText
 import me.melijn.siteapi.Container
 import me.melijn.siteapi.Settings
 import me.melijn.siteapi.database.DaoManager
@@ -104,7 +107,7 @@ interface IRouteContext {
 
 suspend inline fun <reified T> IRouteContext.post(url: String, function: HttpRequestBuilder.() -> Unit = {}): T? {
     return try {
-        httpClient.post<T>(url, function)
+        httpClient.post(url, function).body()
     } catch (t: Throwable) {
         t.printStackTrace()
         null
@@ -113,7 +116,7 @@ suspend inline fun <reified T> IRouteContext.post(url: String, function: HttpReq
 
 suspend inline fun <reified T> IRouteContext.get(url: String, function: HttpRequestBuilder.() -> Unit = {}): T? {
     return try {
-        httpClient.get<T>(url, function)
+        httpClient.get(url, function).body()
     } catch (t: Throwable) {
         t.printStackTrace()
         null
