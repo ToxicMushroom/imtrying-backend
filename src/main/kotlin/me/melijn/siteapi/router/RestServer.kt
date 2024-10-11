@@ -21,6 +21,6 @@ class RestServer(private val container: Container) {
     }
 
     fun start() {
-        server.start(false)
+        server.start(true)
     }
 }
