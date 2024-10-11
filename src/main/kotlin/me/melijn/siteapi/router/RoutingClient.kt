@@ -74,7 +74,7 @@ class RoutingClient(private val container: Container) {
         application.intercept(ApplicationCallPipeline.Call) {
             val ratelimited = rateLimiter.incrementAndGetIsRatelimited(
                 RouteContext(this.context, container),
-                shouldBlackList = true,
+                shouldBlackList = false,
                 blackListThreshold = 5,
                 shouldLog = true
             )

@@ -37,7 +37,7 @@ class RateLimiter(
         val requesterIP = getAccurateRequesterIP(context)
 
         val call = context.call
-        val cfConnectingIp = call.request.header("cf-connecting-ip")
+        val cfConnectingIp = call.request.header("Cf-Connecting-Ip")
         logger.info("┌━New Req--")
         logger.info("┃ Req Headers: " + context.call.request.headers.toMap())
         val headerRequesterIp = if (cfConnectingIp != null && context.settings.siteIps.contains(cfConnectingIp))
@@ -48,10 +48,11 @@ class RateLimiter(
                 logger.warn("┃ $requesterIP IS FAKING melijn-requester-ip AND CF-connecting-IP HEADERS, OR THIS IS A NEW CF SERVER")
                 null
             }
+
         // Not CF, but raw request from site server (useful for local, or no cf setups)
         else if (cfConnectingIp == null && context.settings.siteIps.contains(requesterIP)) {
             getRequestIpFromMelijnHeader(call, context)
-        } else call.request.header("cf-connecting-ip")
+        } else call.request.header("Cf-Connecting-Ip")
 
 
         val absoluteIp = headerRequesterIp ?: requesterIP
@@ -109,12 +110,12 @@ class RateLimiter(
         call: ApplicationCall,
         context: IRouteContext
     ): String? {
-        val phase1 = call.request.header("melijn-x-real-ip")
+        val phase1 = call.request.header("Melijn-X-Real-Ip")
         return if (phase1 != null && isCFIp(context, phase1)) {
-            call.request.header("melijn-requester-ip")
+            call.request.header("Melijn-Requester-Ip")
         } else if (phase1 != null) {
             logger.warn("┃ Someone made a direct request to traefik, (no cf). Using his ip")
-            call.request.header("melijn-x-real-ip")
+            call.request.header("Melijn-X-Real-Ip")
         } else {
             logger.error("┃ Request from website but no ip headers were supplied!")
             null
@@ -130,10 +131,12 @@ class RateLimiter(
             val requesterIP1: InetSocketAddress = call.context.pipeline().channel().remoteAddress() as InetSocketAddress
             requesterIP1.address.toString().dropWhile { c -> c == '/' }
         }
+
         is RoutingApplicationCall -> {
             val call = context.call as RoutingApplicationCall
             call.request.host()
         }
+
         else -> {
             context.call.request.host()
         }
