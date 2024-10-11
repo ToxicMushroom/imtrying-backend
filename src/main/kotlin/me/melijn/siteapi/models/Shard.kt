@@ -1,5 +1,8 @@
 package me.melijn.siteapi.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Shard(
     val id: Int,
     val guildCount: Int,

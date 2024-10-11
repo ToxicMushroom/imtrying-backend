@@ -24,7 +24,7 @@ class Container {
         runBlocking {
             try {
                 val hostPod0 = settings.melijnApi.host.replace("{podId}", "0")
-                httpClient.get("$hostPod0/podinfo").body()
+                httpClient.get("$hostPod0/podinfo").body<PodInfo>()
             } catch (t: Throwable) {
                 t.printStackTrace()
                 exitProcess(404)
