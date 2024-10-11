@@ -8,7 +8,6 @@ import io.ktor.server.request.host
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.uri
 import io.ktor.server.response.respondText
-import io.ktor.server.routing.RoutingApplicationCall
 import io.ktor.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.security.web.util.matcher.IpAddressMatcher
@@ -132,13 +131,8 @@ class RateLimiter(
             requesterIP1.address.toString().dropWhile { c -> c == '/' }
         }
 
-        is RoutingApplicationCall -> {
-            val call = context.call as RoutingApplicationCall
-            call.request.host()
-        }
-
         else -> {
-            context.call.request.host()
+            context.call.request.header("X-Forwarded-For") ?: context.call.request.host()
         }
     }
 }
